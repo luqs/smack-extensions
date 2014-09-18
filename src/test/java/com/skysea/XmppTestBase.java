@@ -20,9 +20,8 @@ public abstract class XmppTestBase extends TestCase {
     protected XMPPConnection connection;
 
     @Override
-    public void setUp() throws Exception {
-        ConnectionConfiguration configuration =
-                new ConnectionConfiguration("192.168.1.104", 5222, "skysea.com");
+    protected void setUp() throws Exception {
+        ConnectionConfiguration configuration = new ConnectionConfiguration("192.168.1.104", 5222, "skysea.com");
         configuration.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         connection = new XMPPTCPConnection(configuration);
         connection.connect();

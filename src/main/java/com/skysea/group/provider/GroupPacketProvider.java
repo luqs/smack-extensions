@@ -1,8 +1,9 @@
 package com.skysea.group.provider;
 
 
-import com.skysea.group.packet.ExtensionType;
-import com.skysea.group.packet.GroupPacket;
+import com.skysea.group.packet.DataFormPacket;
+import com.skysea.group.packet.QueryPacket;
+import com.skysea.group.packet.XPacket;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
@@ -14,7 +15,14 @@ import org.xmlpull.v1.XmlPullParser;
 public class GroupPacketProvider implements IQProvider {
     @Override
     public IQ parseIQ(XmlPullParser parser) throws Exception {
-        GroupPacket packet = createPacket(parser);
+        DataFormPacket packet = null;
+        if("query".equals(parser.getName())){
+            packet = new QueryPacket(parser.getNamespace());
+            ((QueryPacket)packet).setNode(parser.getAttributeValue(null, "node"));
+        } else if ("x".equals(parser.getName())) {
+            packet = new XPacket(parser.getNamespace());
+        }
+
         boolean done = false;
         while (!done) {
             int type = parser.next();
@@ -24,27 +32,9 @@ public class GroupPacketProvider implements IQProvider {
                         parser.getNamespace(),
                         parser));
             }else if(type == XmlPullParser.END_TAG){
-                done = packet.getExtensionPacketType().toString().equals(parser.getName());
+                done = packet.getElementName().equals(parser.getName());
             }
         }
         return packet;
-    }
-
-    private GroupPacket createPacket(XmlPullParser parser) {
-        ExtensionType packetType =
-                parser.getName().equals(ExtensionType.X.toString())
-                        ? ExtensionType.X
-                        : ExtensionType.QUERY;
-
-        GroupPacket packet = new GroupPacket(packetType);
-        if(packetType == ExtensionType.QUERY) {
-            packet.setNode(parser.getAttributeValue("node", ""));
-        }
-
-        return packet;
-    }
-
-    private boolean isDataForm(XmlPullParser parser) {
-        return parser.getName().equals("x") && "jabber:x:data".equals(parser.getNamespace());
     }
 }
