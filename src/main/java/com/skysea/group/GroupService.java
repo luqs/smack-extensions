@@ -19,13 +19,15 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
  * Created by zhangzhi on 2014/9/18.
  */
 public final class GroupService {
-    public static final String GROUP_OWNER = "http://skysea.com/protocol/group#owner";
+    public final static String GROUP_OWNER_NAMESPACE = "http://skysea.com/protocol/group#owner";
     public final static String GROUP_NAMESPACE = "http://skysea.com/protocol/group";
     public final static String GROUP_MEMBER_NAMESPACE = "http://skysea.com/protocol/group#member";
+    public final static String GROUP_USER_NAMESPACE = "http://skysea.com/protocol/group#user";
 
     static {
         ProviderManager.addLoader(new GroupProviderLoader());
     }
+
 
     private final XMPPConnection connection;
     private final String domain;
@@ -129,5 +131,13 @@ public final class GroupService {
             SmackException.NoResponseException {
         packet.setTo(domain);
         return connection.createPacketCollectorAndSend(packet).nextResultOrThrow();
+    }
+
+    /**
+     * 获得服务域名。
+     * @return
+     */
+    public String getServiceDomain() {
+        return domain;
     }
 }

@@ -12,7 +12,6 @@ public abstract class Operate {
     public final static String EXIT = "exit";
     public final static String KICK = "kick";
     public final static String DESTROY = "destroy";
-
     protected final String type;
     private String reason;
 
@@ -30,11 +29,28 @@ public abstract class Operate {
     }
 
     public XmlStringBuilder toXML() {
-        return new XmlStringBuilder()
-                .halfOpenElement(type)
-                .rightAngelBracket()
-                .optElement("reason", reason)
-                .closeElement(type);
+        XmlStringBuilder builder = new XmlStringBuilder();
+        startElement(builder);
+        builder.rightAngelBracket();
+
+        childrenElements(builder);
+        closeElement(builder);
+        return builder;
     }
+
+
+    protected void startElement(XmlStringBuilder builder)
+    {
+        builder.halfOpenElement(type);
+    }
+
+    protected  void childrenElements(XmlStringBuilder builder){
+        builder.optElement("reason", reason);
+    }
+
+    protected void closeElement(XmlStringBuilder builder) {
+        builder.closeElement(type);
+    }
+
 }
 

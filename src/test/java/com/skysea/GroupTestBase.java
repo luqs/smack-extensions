@@ -10,6 +10,6 @@ public abstract class GroupTestBase extends XmppTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        groupService = new GroupService(connection, "group.skysea.com");
+        groupService = new GroupService(testConnection.getConnection(), "group.skysea.com");
     }
 }

@@ -23,6 +23,8 @@ public abstract class ExtensionPacket extends IQ {
     public CharSequence getChildElementXML() {
         XmlStringBuilder builder = new XmlStringBuilder();
         startElement(builder);
+        builder.rightAngelBracket();
+
         childrenElements(builder);
         closeElement(builder);
         return builder;
@@ -31,8 +33,7 @@ public abstract class ExtensionPacket extends IQ {
     protected void startElement(XmlStringBuilder builder)
     {
         builder.halfOpenElement(elementName)
-                .xmlnsAttribute(namespace)
-                .rightAngelBracket();
+                .xmlnsAttribute(namespace);
     }
 
     protected  void childrenElements(XmlStringBuilder builder){

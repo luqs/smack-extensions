@@ -23,10 +23,8 @@ public class QueryPacket extends DataFormPacket {
 
     @Override
     public void startElement(XmlStringBuilder builder) {
-        builder.halfOpenElement("query")
-                .xmlnsAttribute(namespace)
-                .optAttribute("node", node)
-                .rightAngelBracket();
+        super.startElement(builder);
+        builder.optAttribute("node", node);
     }
 
     public String getNode() {

@@ -17,7 +17,7 @@ public abstract class DataFormPacket extends ExtensionPacket {
 
     @Override
     protected void childrenElements(XmlStringBuilder builder){
-        if(dataForm!= null) {
+        if(dataForm != null) {
             builder.append(dataForm.toXML());
         }
     }

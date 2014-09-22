@@ -1,9 +1,6 @@
 package com.skysea.group;
 
-import com.skysea.group.packet.GenericOperate;
-import com.skysea.group.packet.Operate;
-import com.skysea.group.packet.QueryPacket;
-import com.skysea.group.packet.XPacket;
+import com.skysea.group.packet.*;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -75,9 +72,9 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        Operate destroyOpe = new GenericOperate(Operate.DESTROY);
-        destroyOpe.setReason(reason);
-        XPacket packet = new XPacket(GroupService.GROUP_OWNER, destroyOpe);
+        Operate ope = new GenericOperate(Operate.DESTROY);
+        ope.setReason(reason);
+        XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
     }
 
@@ -99,6 +96,116 @@ public final class Group {
         return packet.getDataForm();
     }
 
+
+    /**
+     * 申请加入圈子。
+     * @param reason 申请验证消息。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void applyToJoin(String reason) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+
+        Operate ope = new GenericOperate(Operate.APPLY);
+        ope.setReason(reason);
+        XPacket packet = new XPacket(GroupService.GROUP_USER_NAMESPACE, ope);
+        request(packet);
+    }
+
+    /**
+     * 处理成员加入申请。
+     * @param id 申请事务Id。
+     * @param proposer 申请人jid。
+     * @param agree 是否同意申请。
+     * @param reason 同意/拒绝的原因。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void processApply(String id, String proposer, boolean agree , String reason) throws
+             SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+
+        ProcessApplyOperate ope = new ProcessApplyOperate(id, proposer);
+        ope.setResult(agree);
+        ope.setReason(reason);
+        XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
+        request(packet);
+    }
+
+    /**
+     * 退出圈子。
+     * @param reason 退出的原因。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void exit(String reason) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+
+        Operate ope = new GenericOperate(Operate.EXIT);
+        ope.setReason(reason);
+        XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
+        request(packet);
+    }
+
+    /**
+     * 将用户踢出圈子。
+     * @param user 被踢出的用户名。
+     * @param reason 踢出的原因。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void kick(String user, String reason) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+        if(user == null) { throw new NullPointerException("user is null."); }
+        if(user.length() == 0) { throw new IllegalArgumentException("user is invalid."); }
+
+        Operate ope = new KickOperate(user, reason);
+        XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
+        request(packet);
+    }
+
+    /**
+     * 向圈子发送数据包。
+     * @param packet 数据包对象实例。
+     * @throws SmackException.NotConnectedException
+     */
+    public void send(Packet packet) throws SmackException.NotConnectedException {
+        if (packet == null) { throw new NullPointerException("packet is null."); }
+
+        packet.setTo(jid);
+        connection.sendPacket(packet);
+    }
+
+    /**
+     * 修改圈子昵称。
+     * @param newNickname 新的昵称。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void changeNickname(String newNickname) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+        if(newNickname == null) { throw new NullPointerException("newNickname is null."); }
+        if(newNickname.length() == 0) { throw new IllegalArgumentException("newNickname is invalid."); }
+
+        ChangeProfileOperate ope = new ChangeProfileOperate();
+        ope.setNickname(newNickname);
+        XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
+        request(packet);
+    }
 
     private Packet request(IQ packet) throws
     SmackException.NotConnectedException,
