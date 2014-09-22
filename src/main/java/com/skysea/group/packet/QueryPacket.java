@@ -6,6 +6,7 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
+ * 查询包。
  * Created by zhangzhi on 2014/9/17.
  */
 public class QueryPacket extends DataFormPacket {
@@ -21,17 +22,11 @@ public class QueryPacket extends DataFormPacket {
     }
 
     @Override
-    public CharSequence getChildElementXML() {
-        XmlStringBuilder builder = new XmlStringBuilder()
-                .halfOpenElement("query")
+    public void startElement(XmlStringBuilder builder) {
+        builder.halfOpenElement("query")
                 .xmlnsAttribute(namespace)
                 .optAttribute("node", node)
                 .rightAngelBracket();
-
-        if(dataForm!= null) {
-            builder.append(dataForm.toXML());
-        }
-        return builder.closeElement("query");
     }
 
     public String getNode() {

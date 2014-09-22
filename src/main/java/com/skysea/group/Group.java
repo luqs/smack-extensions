@@ -1,6 +1,9 @@
 package com.skysea.group;
 
+import com.skysea.group.packet.GenericOperate;
+import com.skysea.group.packet.Operate;
 import com.skysea.group.packet.QueryPacket;
+import com.skysea.group.packet.XPacket;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -15,6 +18,7 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
 public final class Group {
     private final XMPPConnection connection;
     private String jid;
+
     Group(XMPPConnection connection, String jid) {
         assert connection != null;
         assert jid != null;
@@ -39,6 +43,42 @@ public final class Group {
 
         packet = (QueryPacket)request(packet);
         return packet.getDataForm();
+    }
+
+    /**
+     * 更新圈子信息。
+     * @param form 圈子更新表单对象。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void updateInfo(DataForm form) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+
+        if(form == null){ throw new NullPointerException("form is null."); }
+
+        XPacket packet = new XPacket(GroupService.GROUP_NAMESPACE, form);
+        request(packet);
+    }
+
+    /**
+     * 销毁圈子。
+     * @param reason 销毁的原因。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void destroy(String reason) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+
+        Operate destroyOpe = new GenericOperate(Operate.DESTROY);
+        destroyOpe.setReason(reason);
+        XPacket packet = new XPacket(GroupService.GROUP_OWNER, destroyOpe);
+        request(packet);
     }
 
     /**

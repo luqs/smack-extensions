@@ -6,41 +6,34 @@ import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
+ * 圈子搜索请求包。
  * Created by zhangzhi on 2014/9/18.
  */
-public class GroupSearch extends IQ {
-    private DataForm dataForm;
+public class GroupSearch extends QueryPacket {
     private RSMPacket rsm;
 
-    public GroupSearch() { }
+    public GroupSearch() {
+        super("jabber:iq:search");
+    }
+
+    public GroupSearch(DataForm dataForm, RSMPacket rsm){
+        this();
+        this.dataForm = dataForm;
+        this.rsm = rsm;
+    }
+
     public GroupSearch(UserSearch packet) {
-        this.dataForm  = packet.getExtension(DataForm.ELEMENT, DataForm.NAMESPACE);
-        this.rsm     = RSMPacket.getRSMFrom(packet);
+        this();
+        this.dataForm = packet.getExtension(DataForm.ELEMENT, DataForm.NAMESPACE);
+        this.rsm = RSMPacket.getRSMFrom(packet);
     }
 
     @Override
-    public CharSequence getChildElementXML() {
-        XmlStringBuilder builder = new XmlStringBuilder()
-                .halfOpenElement("query")
-                .xmlnsAttribute("jabber:iq:search")
-                .rightAngelBracket();
-
-        if(dataForm != null) {
-            builder.append(dataForm.toXML());
-        }
-
+    protected void childrenElements(XmlStringBuilder builder) {
+        super.childrenElements(builder);
         if(rsm != null) {
             builder.append(rsm.toXML());
         }
-        return builder.closeElement("query");
-    }
-
-    public DataForm getDataForm() {
-        return dataForm;
-    }
-
-    public void setDataForm(DataForm dataForm) {
-        this.dataForm = dataForm;
     }
 
     public RSMPacket getRsm() {

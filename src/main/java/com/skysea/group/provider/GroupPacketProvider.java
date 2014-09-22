@@ -1,7 +1,7 @@
 package com.skysea.group.provider;
 
 
-import com.skysea.group.packet.DataFormPacket;
+import com.skysea.group.packet.ExtensionPacket;
 import com.skysea.group.packet.QueryPacket;
 import com.skysea.group.packet.XPacket;
 import org.jivesoftware.smack.packet.IQ;
@@ -15,7 +15,7 @@ import org.xmlpull.v1.XmlPullParser;
 public class GroupPacketProvider implements IQProvider {
     @Override
     public IQ parseIQ(XmlPullParser parser) throws Exception {
-        DataFormPacket packet = null;
+        ExtensionPacket packet = null;
         if("query".equals(parser.getName())){
             packet = new QueryPacket(parser.getNamespace());
             ((QueryPacket)packet).setNode(parser.getAttributeValue(null, "node"));

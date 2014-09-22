@@ -1,22 +1,25 @@
 package com.skysea.group.packet;
 
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
+ * 数据表单包。
  * Created by zhangzhi on 2014/9/18.
  */
-public abstract class DataFormPacket extends IQ {
-    protected final String elementName;
-    protected String namespace;
+public abstract class DataFormPacket extends ExtensionPacket {
     protected DataForm dataForm;
 
     protected DataFormPacket(String elementName, String namespace) {
-        if(elementName == null){ throw new NullPointerException("elementName is null."); }
-        if(namespace == null){ throw new NullPointerException("namespace is null."); }
+        super(namespace, elementName);
+    }
 
-        this.elementName = elementName;
-        this.namespace = namespace;
+    @Override
+    protected void childrenElements(XmlStringBuilder builder){
+        if(dataForm!= null) {
+            builder.append(dataForm.toXML());
+        }
     }
 
     public DataForm getDataForm() {
@@ -30,11 +33,4 @@ public abstract class DataFormPacket extends IQ {
         this.dataForm = dataForm;
     }
 
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public String getElementName() {
-        return elementName;
-    }
 }

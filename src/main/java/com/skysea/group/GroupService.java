@@ -19,12 +19,14 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
  * Created by zhangzhi on 2014/9/18.
  */
 public final class GroupService {
+    public static final String GROUP_OWNER = "http://skysea.com/protocol/group#owner";
     public final static String GROUP_NAMESPACE = "http://skysea.com/protocol/group";
     public final static String GROUP_MEMBER_NAMESPACE = "http://skysea.com/protocol/group#member";
 
     static {
         ProviderManager.addLoader(new GroupProviderLoader());
     }
+
     private final XMPPConnection connection;
     private final String domain;
 
@@ -89,6 +91,19 @@ public final class GroupService {
 
         packet = (QueryPacket)request(packet);
         return packet.getDataForm();
+    }
+
+    /**
+     * 获得某个圈子对象实例。
+     * @param jid 圈子JID。
+     * @return
+     */
+    public Group getGroup(String jid) {
+        if(jid == null || jid.length() == 0) {
+            throw new IllegalArgumentException("jid is null or empty.");
+        }
+
+        return createGroup(jid);
     }
 
     /**

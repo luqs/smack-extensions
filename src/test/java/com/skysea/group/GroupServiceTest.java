@@ -4,6 +4,10 @@ import com.skysea.GroupTestBase;
 import com.skysea.XmppTestBase;
 import com.skysea.group.packet.GroupSearch;
 import com.skysea.group.packet.RSMPacket;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
@@ -22,20 +26,35 @@ public class GroupServiceTest extends GroupTestBase {
 
     public void testSearch() throws Exception{
         // Arrange
+        Form createForm = new Form(getCreateForm());
+        Group group = groupService.create(createForm.getDataFormToSend());
+
+        // 搜索条件
         DataForm searchForm = new DataForm("submit");
+
+        FormField field = new FormField("id");
+        field.addValue(StringUtils.parseName(group.getJid()));
+        searchForm.addField(field);
+
+        field = new FormField("name");
+        field.addValue(createForm.getField("name").getValues().get(0));
+        searchForm.addField(field);
+
+        field = new FormField("category");
+        field.addValue(createForm.getField("category").getValues().get(0));
+        searchForm.addField(field);
+
+        // 分页信息
         RSMPacket rsm = new RSMPacket();
         rsm.setIndex(0);
         rsm.setMax(10);
-        GroupSearch search = new GroupSearch();
-        search.setDataForm(searchForm);
-        search.setRsm(rsm);
 
         // Act
-        GroupSearch result = groupService.search(search);
+        GroupSearch result = groupService.search(new GroupSearch(searchForm, rsm));
 
         // Assert
-        assertTrue(result.getRsm().getCount() > 0);
-        assertTrue(result.getDataForm().getItems().size() > 0);
+        assertEquals(1, result.getRsm().getCount());
+        assertEquals(1, result.getDataForm().getItems().size());
     }
 
     public void testGetJoinedGroups() throws Exception{
