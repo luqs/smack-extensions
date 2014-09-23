@@ -2,6 +2,7 @@ package com.skysea.group;
 
 import com.skysea.group.packet.RSMPacket;
 import com.skysea.group.provider.GroupPacketProvider;
+import com.skysea.group.provider.NotifyPacketExtensionProvider;
 import com.skysea.group.provider.RSMPacketProvider;
 import com.skysea.group.provider.SearchProvider;
 import org.jivesoftware.smack.provider.ExtensionProviderInfo;
@@ -33,6 +34,11 @@ public class GroupProviderLoader implements ProviderLoader {
     public Collection<ExtensionProviderInfo> getExtensionProviderInfo() {
         ArrayList<ExtensionProviderInfo> providers = new ArrayList<ExtensionProviderInfo>();
         providers.add(new ExtensionProviderInfo(RSMPacket.ELEMENT, RSMPacket.NAMESPACE, new RSMPacketProvider()));
+
+        NotifyPacketExtensionProvider notifyProvider = new NotifyPacketExtensionProvider();
+        providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_MEMBER_NAMESPACE, notifyProvider));
+        providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_NAMESPACE, notifyProvider));
+        providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_USER_NAMESPACE, notifyProvider));
         return providers;
     }
 }

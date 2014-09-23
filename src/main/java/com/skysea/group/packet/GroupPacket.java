@@ -6,11 +6,11 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
 /**
  * Created by zhangzhi on 2014/9/22.
  */
-public abstract class ExtensionPacket extends IQ {
+public abstract class GroupPacket extends IQ {
     protected final String elementName;
     protected String namespace;
 
-    public ExtensionPacket(String namespace, String elementName) {
+    public GroupPacket(String namespace, String elementName) {
         this.namespace = namespace;
         this.elementName = elementName;
 

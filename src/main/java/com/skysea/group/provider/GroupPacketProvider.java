@@ -1,10 +1,9 @@
 package com.skysea.group.provider;
 
 
-import com.skysea.group.packet.ExtensionPacket;
+import com.skysea.group.packet.GroupPacket;
 import com.skysea.group.packet.QueryPacket;
 import com.skysea.group.packet.XPacket;
-import com.skysea.group.packet.notify.NotifyParser;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
@@ -17,7 +16,7 @@ import org.xmlpull.v1.XmlPullParser;
 public class GroupPacketProvider implements IQProvider {
     @Override
     public IQ parseIQ(XmlPullParser parser) throws Exception {
-        ExtensionPacket packet = null;
+        GroupPacket packet = null;
         if("query".equals(parser.getName())){
             packet = new QueryPacket(parser.getNamespace());
             ((QueryPacket)packet).setNode(parser.getAttributeValue(null, "node"));
@@ -30,7 +29,7 @@ public class GroupPacketProvider implements IQProvider {
         return packet;
     }
 
-    private void parsePacket(ExtensionPacket packet, XmlPullParser parser) throws Exception {
+    private void parsePacket(GroupPacket packet, XmlPullParser parser) throws Exception {
         boolean done = false;
         while (!done) {
             int type = parser.next();
@@ -43,13 +42,13 @@ public class GroupPacketProvider implements IQProvider {
                             parser.getNamespace(),
                             parser));
 
-                /* X节点包含通知信息 */
-                }else if(packet instanceof XPacket &&
+                    /* X节点包含通知信息 */
+                } /* else if(packet instanceof XPacket &&
                         NotifyParser.isAccept(parser.getName(), packet.getNamespace())) {
 
                     ((XPacket)packet).setNotify(
                             new NotifyParser(parser, packet.getNamespace()).parse());
-                }
+                }*/
             }else if(type == XmlPullParser.END_TAG){
                 done = packet.getElementName().equals(parser.getName());
             }

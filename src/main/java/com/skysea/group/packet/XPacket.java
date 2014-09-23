@@ -11,7 +11,6 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
  */
 public class XPacket extends DataFormPacket {
     private Operate operate;
-    private Notify notify;
     public XPacket(String namespace) {
         super("x", namespace);
     }
@@ -32,14 +31,6 @@ public class XPacket extends DataFormPacket {
 
     public void setOperate(Operate operate) {
         this.operate = operate;
-    }
-
-    public Notify getNotify() {
-        return notify;
-    }
-
-    public void setNotify(Notify notify) {
-        this.notify = notify;
     }
 
     @Override

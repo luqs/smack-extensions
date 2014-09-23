@@ -7,7 +7,7 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
  * 数据表单包。
  * Created by zhangzhi on 2014/9/18.
  */
-public abstract class DataFormPacket extends ExtensionPacket {
+public abstract class DataFormPacket extends GroupPacket {
     protected DataForm dataForm;
 
     protected DataFormPacket(String elementName, String namespace) {

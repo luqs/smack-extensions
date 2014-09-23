@@ -39,26 +39,4 @@ public class GroupPacketProviderTest extends XmlPullPaserTestBase {
         // Assert
         assertNotNull(packet.getDataForm());
     }
-
-    public void testParse_X_IQ_Packet() throws Exception {
-        // Arrange
-        XmlPullParser parser = xmlParser("<x xmlns='http://skysea.com/protocol/group#member'>\n" +
-                "  \t<exit>\n" +
-                "  \t\t<member username='user' nickname='碧眼狐狸' />\n" +
-                "  \t\t<reason>大家太吵了，不好意思，我退了先！</reason>\n" +
-                "  \t</exit>\n" +
-                "  </x>\n");
-        parser.next();
-
-        // Act
-        XPacket packet = (XPacket)packetProvider.parseIQ(parser);
-
-        // Assert
-        MemberEventNotify notify = (MemberEventNotify)packet.getNotify();
-        assertEquals("user", notify.getMemberInfo().getUserName());
-        assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
-        assertNotNull("大家太吵了，不好意思，我退了先！", notify.getReason());
-    }
-
-
 }
