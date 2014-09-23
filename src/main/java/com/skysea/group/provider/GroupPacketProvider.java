@@ -1,8 +1,10 @@
 package com.skysea.group.provider;
 
 
-import com.skysea.group.MemberInfo;
-import com.skysea.group.packet.*;
+import com.skysea.group.packet.ExtensionPacket;
+import com.skysea.group.packet.QueryPacket;
+import com.skysea.group.packet.XPacket;
+import com.skysea.group.packet.notify.NotifyParser;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
@@ -19,43 +21,35 @@ public class GroupPacketProvider implements IQProvider {
         if("query".equals(parser.getName())){
             packet = new QueryPacket(parser.getNamespace());
             ((QueryPacket)packet).setNode(parser.getAttributeValue(null, "node"));
-            parseQueryPacket(((QueryPacket)packet), parser);
+            parsePacket(packet, parser);
         } else if ("x".equals(parser.getName())) {
             packet = new XPacket(parser.getNamespace());
-            parseXPacket((XPacket)packet, parser);
+            parsePacket(packet, parser);
         }
 
         return packet;
     }
 
-    private void parseQueryPacket(QueryPacket packet, XmlPullParser parser) throws Exception {
+    private void parsePacket(ExtensionPacket packet, XmlPullParser parser) throws Exception {
         boolean done = false;
         while (!done) {
             int type = parser.next();
             if(type == XmlPullParser.START_TAG){
-                packet.addExtension(PacketParserUtils.parsePacketExtension(
-                        parser.getName(),
-                        parser.getNamespace(),
-                        parser));
-            }else if(type == XmlPullParser.END_TAG){
-                done = packet.getElementName().equals(parser.getName());
-            }
-        }
-    }
 
-    private void parseXPacket(XPacket packet, XmlPullParser parser) throws Exception {
-        boolean done = false;
-        while (!done) {
-            int type = parser.next();
-            if(type == XmlPullParser.START_TAG){
+                /* 数据表单 */
                 if(isDataForm(parser)) {
                     packet.addExtension(PacketParserUtils.parsePacketExtension(
                             parser.getName(),
                             parser.getNamespace(),
                             parser));
-                }/*else if(ApplyOperate.PARSER.isOperate(parser)) {
-                    packet.setOperate(ApplyOperate.PARSER.parse(parser, packet.getNamespace()));
-                }*/
+
+                /* X节点包含通知信息 */
+                }else if(packet instanceof XPacket &&
+                        NotifyParser.isAccept(parser.getName(), packet.getNamespace())) {
+
+                    ((XPacket)packet).setNotify(
+                            new NotifyParser(parser, packet.getNamespace()).parse());
+                }
             }else if(type == XmlPullParser.END_TAG){
                 done = packet.getElementName().equals(parser.getName());
             }

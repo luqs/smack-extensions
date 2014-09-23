@@ -5,4 +5,5 @@ package com.skysea.group.packet;
  */
 public interface HasReason {
     String getReason();
+    void setReason(String reason);
 }

@@ -13,11 +13,19 @@ public abstract class HasReasonOperate extends Operate implements HasReason {
         super(type);
     }
 
+    /**
+     * 获得操作原因。
+     * @return
+     */
     @Override
     public String getReason() {
         return reason;
     }
 
+    /**
+     * 设置操作原因。
+     * @param reason
+     */
     public void setReason(String reason) {
         this.reason = reason;
     }

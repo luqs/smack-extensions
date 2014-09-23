@@ -8,17 +8,26 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
  */
 public final class KickOperate extends HasReasonOperate {
     private final String userName;
+
+    /**
+     *
+     * @param userName 被踢用户名。
+     */
     public KickOperate(String userName) {
         super("kick");
         this.userName = userName;
     }
 
+    /**
+     * 获得被踢的用户名。
+     * @return
+     */
     public String getUserName() {
         return userName;
     }
 
     @Override
-    public void startElement(XmlStringBuilder builder) {
+    protected void startElement(XmlStringBuilder builder) {
         super.startElement(builder);
         builder.attribute("username", userName);
     }

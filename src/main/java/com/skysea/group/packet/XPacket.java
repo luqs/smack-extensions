@@ -1,5 +1,6 @@
 package com.skysea.group.packet;
 
+import com.skysea.group.packet.notify.Notify;
 import com.skysea.group.packet.operate.Operate;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
@@ -10,6 +11,7 @@ import org.jivesoftware.smackx.xdata.packet.DataForm;
  */
 public class XPacket extends DataFormPacket {
     private Operate operate;
+    private Notify notify;
     public XPacket(String namespace) {
         super("x", namespace);
     }
@@ -32,6 +34,14 @@ public class XPacket extends DataFormPacket {
         this.operate = operate;
     }
 
+    public Notify getNotify() {
+        return notify;
+    }
+
+    public void setNotify(Notify notify) {
+        this.notify = notify;
+    }
+
     @Override
     protected void childrenElements(XmlStringBuilder builder) {
         super.childrenElements(builder);
@@ -39,4 +49,6 @@ public class XPacket extends DataFormPacket {
             builder.append(operate.toXML());
         }
     }
+
+
 }

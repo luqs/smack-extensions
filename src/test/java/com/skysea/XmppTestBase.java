@@ -12,7 +12,7 @@ public abstract class XmppTestBase extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        testConnection = new XmppTestConnection("192.168.1.104", 5222, "skysea.com");
+        testConnection = new XmppTestConnection("localhost", 5222, "skysea.com");
         testConnection.connect();
         testUserName = testConnection.createTestUserAndLogin();
     }

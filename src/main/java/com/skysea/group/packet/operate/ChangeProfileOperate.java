@@ -13,10 +13,18 @@ public final class ChangeProfileOperate extends Operate {
         super("profile");
     }
 
+    /**
+     * 获得要设置的新用户昵称。
+     * @return
+     */
     public String getNickname() {
         return nickname;
     }
 
+    /**
+     * 设置新的用户昵称。
+     * @param nickname 新的用户昵称。
+     */
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
