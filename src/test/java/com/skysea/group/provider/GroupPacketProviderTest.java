@@ -39,4 +39,8 @@ public class GroupPacketProviderTest extends XmlPullPaserTestBase {
         // Assert
         assertNotNull(packet.getDataForm());
     }
+
+
+
+
 }
