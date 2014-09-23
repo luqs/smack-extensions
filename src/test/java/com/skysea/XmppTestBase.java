@@ -3,12 +3,6 @@ package com.skysea;
 
 import junit.framework.TestCase;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-
-import java.io.IOException;
-
 /**
  * Created by zhangzhi on 2014/9/16.
  */

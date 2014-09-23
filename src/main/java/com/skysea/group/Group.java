@@ -1,6 +1,7 @@
 package com.skysea.group;
 
 import com.skysea.group.packet.*;
+import com.skysea.group.packet.operate.*;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -22,6 +23,15 @@ public final class Group {
 
         this.connection = connection;
         this.jid = jid;
+    }
+
+
+    /**
+     * 获得圈子jid。
+     * @return
+     */
+    public String getJid() {
+        return jid;
     }
 
     /**
@@ -72,7 +82,7 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        Operate ope = new GenericOperate(Operate.DESTROY);
+        GenericOperate ope = new GenericOperate(GenericOperate.DESTROY);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
@@ -109,7 +119,7 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        Operate ope = new GenericOperate(Operate.APPLY);
+        GenericOperate ope = new GenericOperate(GenericOperate.APPLY);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_USER_NAMESPACE, ope);
         request(packet);
@@ -130,8 +140,8 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        ProcessApplyOperate ope = new ProcessApplyOperate(id, proposer);
-        ope.setResult(agree);
+        ProcessApplyOperate ope = new ProcessApplyOperate(id, agree);
+        ope.setFrom(proposer);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
@@ -149,7 +159,7 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        Operate ope = new GenericOperate(Operate.EXIT);
+        GenericOperate ope = new GenericOperate(GenericOperate.EXIT);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
         request(packet);
@@ -170,7 +180,8 @@ public final class Group {
         if(user == null) { throw new NullPointerException("user is null."); }
         if(user.length() == 0) { throw new IllegalArgumentException("user is invalid."); }
 
-        Operate ope = new KickOperate(user, reason);
+        KickOperate ope = new KickOperate(user);
+        ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
     }
@@ -203,20 +214,16 @@ public final class Group {
 
         ChangeProfileOperate ope = new ChangeProfileOperate();
         ope.setNickname(newNickname);
+
         XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
         request(packet);
     }
 
     private Packet request(IQ packet) throws
-    SmackException.NotConnectedException,
+            SmackException.NotConnectedException,
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
         packet.setTo(jid);
        return connection.createPacketCollectorAndSend(packet).nextResultOrThrow();
     }
-
-    public String getJid() {
-        return jid;
-    }
-
 }

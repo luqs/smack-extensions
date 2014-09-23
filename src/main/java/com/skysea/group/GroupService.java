@@ -1,6 +1,5 @@
 package com.skysea.group;
 
-import com.skysea.group.packet.DataFormPacket;
 import com.skysea.group.packet.GroupSearch;
 import com.skysea.group.packet.QueryPacket;
 import com.skysea.group.packet.XPacket;
@@ -23,20 +22,29 @@ public final class GroupService {
     public final static String GROUP_NAMESPACE = "http://skysea.com/protocol/group";
     public final static String GROUP_MEMBER_NAMESPACE = "http://skysea.com/protocol/group#member";
     public final static String GROUP_USER_NAMESPACE = "http://skysea.com/protocol/group#user";
+    private final XMPPConnection connection;
+    private final String domain;
+    private final EventDispatcher eventDispatcher;
 
     static {
         ProviderManager.addLoader(new GroupProviderLoader());
     }
-
-
-    private final XMPPConnection connection;
-    private final String domain;
 
     public GroupService(XMPPConnection connection, String domain){
         if(connection == null) { throw new NullPointerException("connection is null."); }
         if(domain == null) { throw  new NullPointerException("domain is null."); }
         this.connection = connection;
         this.domain = domain;
+        this.eventDispatcher = new EventDispatcher(connection, domain);
+    }
+
+
+    /**
+     * 获得服务域名。
+     * @return
+     */
+    public String getServiceDomain() {
+        return domain;
     }
 
     /**
@@ -108,6 +116,27 @@ public final class GroupService {
         return createGroup(jid);
     }
 
+    public void addGroupEventListener(GroupEventListener listener) {
+        if(listener == null) { throw new NullPointerException("listener is null."); }
+        eventDispatcher.addEventListener(listener);
+    }
+
+    public void removeGroupEventListener(GroupEventListener listener) {
+        if(listener == null) { throw new NullPointerException("listener is null."); }
+        eventDispatcher.removeEventListener(listener);
+    }
+
+    public void addUserEventListener(UserEventListener listener) {
+        if(listener == null) { throw new NullPointerException("listener is null."); }
+        eventDispatcher.addEventListener(listener);
+    }
+
+    public void removeUserEventListener(UserEventListener listener) {
+        if(listener == null) { throw new NullPointerException("listener is null."); }
+        eventDispatcher.removeEventListener(listener);
+    }
+
+
     /**
      * 创建圈子对象实例。
      * @param jid
@@ -133,11 +162,5 @@ public final class GroupService {
         return connection.createPacketCollectorAndSend(packet).nextResultOrThrow();
     }
 
-    /**
-     * 获得服务域名。
-     * @return
-     */
-    public String getServiceDomain() {
-        return domain;
-    }
+
 }

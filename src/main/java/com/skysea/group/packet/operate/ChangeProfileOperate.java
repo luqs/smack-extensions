@@ -1,23 +1,24 @@
-package com.skysea.group.packet;
+package com.skysea.group.packet.operate;
 
 import org.jivesoftware.smack.util.XmlStringBuilder;
 
 /**
- * Created by zhangzhi on 2014/9/22.
+ * 修改圈子名片的操作。
+ * Created by zhangzhi on 2014/9/23.
  */
-public class ChangeProfileOperate  extends GenericOperate {
+public final class ChangeProfileOperate extends Operate {
     private String nickname;
 
     public ChangeProfileOperate() {
-        super(Operate.PROFILE);
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+        super("profile");
     }
 
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Override

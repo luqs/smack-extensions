@@ -214,7 +214,6 @@ public class SearchProvider implements IQProvider {
                         done = true;
                     }
                 }
-
             }
 
             this.data = data;

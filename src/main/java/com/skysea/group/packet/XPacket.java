@@ -1,5 +1,6 @@
 package com.skysea.group.packet;
 
+import com.skysea.group.packet.operate.Operate;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 

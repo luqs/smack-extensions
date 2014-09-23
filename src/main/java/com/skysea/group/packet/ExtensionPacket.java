@@ -18,7 +18,6 @@ public abstract class ExtensionPacket extends IQ {
         if(namespace == null){ throw new NullPointerException("namespace is null."); }
     }
 
-
     @Override
     public CharSequence getChildElementXML() {
         XmlStringBuilder builder = new XmlStringBuilder();

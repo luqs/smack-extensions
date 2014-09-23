@@ -1,6 +1,5 @@
 package com.skysea.group.packet;
 
-import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.xdata.packet.DataForm;

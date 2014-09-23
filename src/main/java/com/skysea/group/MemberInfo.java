@@ -1,9 +1,9 @@
-package com.skysea.group.packet;
+package com.skysea.group;
 
 /**
  * Created by zhangzhi on 2014/9/22.
  */
-public class MemberInfo{
+public class MemberInfo {
     private final String nickname;
     private final String userName;
 

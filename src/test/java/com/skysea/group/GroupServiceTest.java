@@ -1,11 +1,8 @@
 package com.skysea.group;
 
 import com.skysea.GroupTestBase;
-import com.skysea.XmppTestBase;
 import com.skysea.group.packet.GroupSearch;
 import com.skysea.group.packet.RSMPacket;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;

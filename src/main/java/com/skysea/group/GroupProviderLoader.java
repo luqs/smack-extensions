@@ -10,7 +10,6 @@ import org.jivesoftware.smack.provider.ProviderLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Created by zhangzhi on 2014/9/18.
@@ -21,6 +20,7 @@ public class GroupProviderLoader implements ProviderLoader {
         ArrayList<IQProviderInfo> providers = new ArrayList<IQProviderInfo>();
         GroupPacketProvider groupPacketProvider = new GroupPacketProvider();
 
+        //providers.add(new IQProviderInfo("x", GroupService.GROUP_MEMBER_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("x", GroupService.GROUP_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("query", GroupService.GROUP_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("query", GroupService.GROUP_MEMBER_NAMESPACE, groupPacketProvider));
