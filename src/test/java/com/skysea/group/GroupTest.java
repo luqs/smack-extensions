@@ -2,12 +2,16 @@ package com.skysea.group;
 
 import com.skysea.GroupTestBase;
 import com.skysea.XmppTestConnection;
+import com.skysea.group.packet.MemberPacketExtension;
 import mockit.Delegate;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.FromMatchesFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
@@ -18,8 +22,9 @@ import java.util.HashMap;
 public class GroupTest extends GroupTestBase {
     private DataForm createForm;
     private Group group;
-    @Mocked
-    GroupEventListener listener;
+    @Mocked GroupEventListener listener;
+    @Mocked PacketListener packetListener;
+
 
     @Override
     protected void setUp() throws Exception {
@@ -222,7 +227,9 @@ public class GroupTest extends GroupTestBase {
 
     public void testSend() throws Exception {
         // Arrange
-        Message msg = new Message();
+        testConnection.getConnection().addPacketListener(packetListener, null);
+
+        final Message msg = new Message();
         msg.setType(Message.Type.groupchat);
         msg.setBody("hello buddy.");
 
@@ -230,6 +237,24 @@ public class GroupTest extends GroupTestBase {
         group.send(msg);
 
         // Assert
+        Thread.sleep(100);
+        new Verifications(){
+            {
+                packetListener.processPacket(with(new Delegate<Packet>() {
+                    public void validate(Packet packet) {
+                        MemberPacketExtension packetExt = (MemberPacketExtension)packet.getExtensions().toArray()[0];
+
+                        assertEquals(group.getJid() + "/" + testUserName, packet.getFrom());
+                        assertEquals(((Message)packet).getBody(), msg.getBody());
+
+                        //assertEquals(testUserName, packetExt.getMemberInfo().getUserName());
+                        assertEquals(testUserName, packetExt.getMemberInfo().getNickname());
+                    }
+                }));
+                times = 1;
+            }
+        };
+
     }
 
     public void testGroup() throws Exception {

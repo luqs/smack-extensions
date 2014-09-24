@@ -1,7 +1,8 @@
 package com.skysea.group.provider;
 
+import com.skysea.group.MemberInfo;
+import com.skysea.group.packet.MemberPacketExtension;
 import com.skysea.group.packet.NotifyPacketExtension;
-import com.skysea.group.packet.notify.Notify;
 import com.skysea.group.packet.notify.NotifyParser;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
@@ -14,26 +15,34 @@ import org.xmlpull.v1.XmlPullParser;
 public class NotifyPacketExtensionProvider implements PacketExtensionProvider {
     @Override
     public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
-        NotifyPacketExtension packet = new NotifyPacketExtension(
-                parser.getName(),
-                parser.getNamespace());
+        String name = parser.getName();
+        String namespace = parser.getNamespace();
+        PacketExtension extension = null;
 
         while (true) {
             int type = parser.next();
-            if(type == XmlPullParser.START_TAG){
-                if(NotifyParser.isAccept(parser.getName(), packet.getNamespace())) {
-                    Notify notify = new NotifyParser(
-                            parser, packet.getNamespace()).parse();
-                    packet.setNotify(notify);
-                    //System.out.println(notify);
+            if (type == XmlPullParser.START_TAG && extension == null) {
+
+                if (NotifyParser.isAccept(parser.getName(), namespace)) {
+
+                    /* 解析通知扩展包 */
+                    NotifyPacketExtension packet = new NotifyPacketExtension(name, namespace);
+                    NotifyParser notifyparser = new NotifyParser(parser, packet.getNamespace());
+                    packet.setNotify(notifyparser.parse());
+
+                    extension = packet;
+                } else {
+                     /* 解析聊天消息中的程序信息扩展包 */
+                    extension = MemberPacketExtension.tryParse(name, namespace, parser);
                 }
-            }else if (type == XmlPullParser.END_TAG) {
-                if(parser.getName().equals(packet.getElementName())){
+            } else if (type == XmlPullParser.END_TAG) {
+                if (parser.getName().equals(name)) {
                     break;
                 }
             }
         }
 
-        return packet;
+        return extension;
     }
+
 }

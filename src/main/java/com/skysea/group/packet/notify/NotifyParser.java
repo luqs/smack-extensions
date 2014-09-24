@@ -31,17 +31,17 @@ public final class NotifyParser {
         assert name != null;
         return
                 isNotifyElement(Notify.Type.MEMBER_JOINED, name) ||
-                        isNotifyElement(Notify.Type.MEMBER_EXITED, name) ||
-                        isNotifyElement(Notify.Type.MEMBER_KICKED, name) ||
+                isNotifyElement(Notify.Type.MEMBER_EXITED, name) ||
+                isNotifyElement(Notify.Type.MEMBER_KICKED, name) ||
 
-                        isNotifyElement(Notify.Type.MEMBER_APPLY_TO_JOIN, name) &&
-                                GroupService.GROUP_OWNER_NAMESPACE.equals(namespace) ||
+                isNotifyElement(Notify.Type.MEMBER_APPLY_TO_JOIN, name) &&
+                        GroupService.GROUP_OWNER_NAMESPACE.equals(namespace) ||
 
-                        isNotifyElement(Notify.Type.MEMBER_APPLY_TO_JOIN_RESULT, name) &&
-                                GroupService.GROUP_USER_NAMESPACE.equals(namespace) ||
+                isNotifyElement(Notify.Type.MEMBER_APPLY_TO_JOIN_RESULT, name) &&
+                        GroupService.GROUP_USER_NAMESPACE.equals(namespace) ||
 
-                        isNotifyElement(Notify.Type.MEMBER_PROFILE_CHANGED, name) ||
-                        isNotifyElement(Notify.Type.GROUP_DESTROY, name) ;
+                isNotifyElement(Notify.Type.MEMBER_PROFILE_CHANGED, name) ||
+                isNotifyElement(Notify.Type.GROUP_DESTROY, name) ;
     }
 
 
