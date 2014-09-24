@@ -1,3 +1,5 @@
 smack-extensions.iml
 .idea
 target/
+.DS_Store
+**~
