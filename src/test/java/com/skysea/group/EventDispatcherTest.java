@@ -112,7 +112,7 @@ public class EventDispatcherTest extends TestCase {
         // Assert
         new Verifications() {
             {
-                listener.destroy(
+                listener.destroyed(
                         GROUP_JID,
                         notify.getFrom(),
                         notify.getReason());

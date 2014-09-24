@@ -12,7 +12,6 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.HashMap;
 
@@ -106,7 +105,7 @@ public class GroupTest extends GroupTestBase {
         // Assert
         new Verifications(){
             {
-                listener.destroy(group.getJid(), anyString, reason);
+                listener.destroyed(group.getJid(), anyString, reason);
                 times = 1;
             }
         };
@@ -417,7 +416,7 @@ public class GroupTest extends GroupTestBase {
 
         public String bindUser() throws Exception {
             if (userName != null) {
-                throw new InvalidStateException("already bind.");
+                throw new IllegalStateException("already bind.");
             }
             return userName = connection.createTestUserAndLogin();
         }

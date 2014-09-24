@@ -153,7 +153,7 @@ final class EventDispatcher implements PacketListener {
 
     private void dispatchDestroy(String jid, GroupDestroyNotify notify) {
         for (GroupEventListener listener:listeners) {
-            listener.destroy(jid, notify.getFrom(), notify.getReason());
+            listener.destroyed(jid, notify.getFrom(), notify.getReason());
         }
     }
 

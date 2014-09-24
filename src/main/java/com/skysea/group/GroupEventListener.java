@@ -21,7 +21,7 @@ public interface GroupEventListener {
      * @param from 操作人jid。
      * @param reason 销毁原因。
      */
-    void destroy(String groupJid, String from, String reason);
+    void destroyed(String groupJid, String from, String reason);
 
     /**
      * 新成员加入事件。
