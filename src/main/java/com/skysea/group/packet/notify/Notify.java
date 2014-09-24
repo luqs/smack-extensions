@@ -1,6 +1,7 @@
 package com.skysea.group.packet.notify;
 
 /**
+ * 通知基类。
  * Created by zhangzhi on 2014/9/23.
  */
 public abstract class Notify {

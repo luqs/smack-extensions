@@ -1,6 +1,7 @@
 package com.skysea.group.packet.notify;
 
 /**
+ * 申请处理结果通知。
  * Created by apple on 14-9-23.
  */
 public class ApplyResultNotify extends HasOperatorNotify {

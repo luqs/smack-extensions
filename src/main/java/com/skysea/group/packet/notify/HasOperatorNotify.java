@@ -1,6 +1,7 @@
 package com.skysea.group.packet.notify;
 
 /**
+ * 包含操作员的通知基类。
  * Created by apple on 14-9-23.
  */
 public abstract class HasOperatorNotify extends HasReasonNotify implements HasOperator {

@@ -1,7 +1,7 @@
 package com.skysea.group.packet.notify;
 
 /**
- * 包含reason信息的通知。
+ * 圈子销毁的通知。
  * Created by zhangzhi on 2014/9/23.
  */
 public class GroupDestroyNotify extends HasOperatorNotify {

@@ -6,6 +6,7 @@ import com.skysea.group.packet.HasReason;
 import org.xmlpull.v1.XmlPullParser;
 
 /**
+ * 通知分析器。
  * Created by apple on 14-9-23.
  */
 public final class NotifyParser {

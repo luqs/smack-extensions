@@ -3,6 +3,7 @@ package com.skysea.group.packet.notify;
 import com.skysea.group.MemberInfo;
 
 /**
+ * 用户事件通知。
  * Created by zhangzhi on 2014/9/23.
  */
 public class MemberEventNotify extends HasReasonNotify {
