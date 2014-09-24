@@ -3,25 +3,36 @@ package com.skysea.group;
 import com.skysea.GroupTestBase;
 import com.skysea.group.packet.GroupSearch;
 import com.skysea.group.packet.RSMPacket;
+import mockit.Mocked;
+import mockit.Verifications;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 public class GroupServiceTest extends GroupTestBase {
+    @Mocked
+    GroupEventListener listener;
 
     public void testCreate() throws Exception {
         // Arrange
         final DataForm form = getCreateForm();
+        groupService.addGroupEventListener(listener);
 
         // Act
-        Group group = groupService.create(form);
+        final Group group = groupService.create(form);
 
         // Assert
         assertNotNull(group.getJid());
+        new Verifications() {
+            {
+                listener.created(group.getJid(), form);
+                times = 1;
+            }
+        };
     }
 
-    public void testSearch() throws Exception{
+    public void testSearch() throws Exception {
         // Arrange
         Form createForm = new Form(getCreateForm());
         Group group = groupService.create(createForm.getDataFormToSend());
@@ -54,7 +65,7 @@ public class GroupServiceTest extends GroupTestBase {
         assertEquals(1, result.getDataForm().getItems().size());
     }
 
-    public void testGetJoinedGroups() throws Exception{
+    public void testGetJoinedGroups() throws Exception {
         // Arrange
         Group group = groupService.create(getCreateForm());
 
@@ -63,10 +74,10 @@ public class GroupServiceTest extends GroupTestBase {
 
         // Assert
         boolean found = false;
-        for(DataForm.Item item : resultForm.getItems()){
-            for(FormField field : item.getFields()) {
-                if(field.getVariable().equals("jid")){
-                    if(field.getValues().get(0).equals(group.getJid())){
+        for (DataForm.Item item : resultForm.getItems()) {
+            for (FormField field : item.getFields()) {
+                if (field.getVariable().equals("jid")) {
+                    if (field.getValues().get(0).equals(group.getJid())) {
                         found = true;
                     }
                 }

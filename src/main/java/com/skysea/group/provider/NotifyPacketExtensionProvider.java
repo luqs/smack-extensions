@@ -25,7 +25,7 @@ public class NotifyPacketExtensionProvider implements PacketExtensionProvider {
                     Notify notify = new NotifyParser(
                             parser, packet.getNamespace()).parse();
                     packet.setNotify(notify);
-                    System.out.println(notify);
+                    //System.out.println(notify);
                 }
             }else if (type == XmlPullParser.END_TAG) {
                 if(parser.getName().equals(packet.getElementName())){

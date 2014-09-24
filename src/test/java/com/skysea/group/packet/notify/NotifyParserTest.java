@@ -168,6 +168,9 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
     }
 
 
+    public static MemberEventNotify createMemberEventNotify(Notify.Type type) {
+        return new MemberEventNotify(type);
+    }
 
     private NotifyParser parser(String namespace, String xml) throws Exception {
         XmlPullParser xmlPullParser = xmlParser(xml);

@@ -48,6 +48,14 @@ public final class GroupService {
     }
 
     /**
+     * 获得xmpp连接对象。
+     * @return
+     */
+    public XMPPConnection getConnection() {
+        return connection;
+    }
+
+    /**
      * 创建一个圈子。
      * @param form 创建圈子所需的数据表单对象。
      * @return 创建成功的圈子对象。
@@ -68,7 +76,11 @@ public final class GroupService {
 
         // 根据表单返回圈子对象实例。
         Form resultForm = Form.getFormFrom(request(packet));
-        return createGroup(resultForm.getField("jid").getValues().get(0));
+        String jid = resultForm.getField("jid").getValues().get(0);
+
+        /* 触发创建事件 */
+        eventDispatcher.dispatchCreate(jid, form);
+        return createGroup(jid);
     }
 
     /**
@@ -116,26 +128,23 @@ public final class GroupService {
         return createGroup(jid);
     }
 
+    /**
+     * 添加圈子事件监听器。
+     * @param listener 事件监听器。
+     */
     public void addGroupEventListener(GroupEventListener listener) {
         if(listener == null) { throw new NullPointerException("listener is null."); }
         eventDispatcher.addEventListener(listener);
     }
 
+    /**
+     * 产出圈子事件监听器。
+     * @param listener 事件监听器。
+     */
     public void removeGroupEventListener(GroupEventListener listener) {
         if(listener == null) { throw new NullPointerException("listener is null."); }
         eventDispatcher.removeEventListener(listener);
     }
-
-    public void addUserEventListener(UserEventListener listener) {
-        if(listener == null) { throw new NullPointerException("listener is null."); }
-        eventDispatcher.addEventListener(listener);
-    }
-
-    public void removeUserEventListener(UserEventListener listener) {
-        if(listener == null) { throw new NullPointerException("listener is null."); }
-        eventDispatcher.removeEventListener(listener);
-    }
-
 
     /**
      * 创建圈子对象实例。
@@ -161,6 +170,4 @@ public final class GroupService {
         packet.setTo(domain);
         return connection.createPacketCollectorAndSend(packet).nextResultOrThrow();
     }
-
-
 }

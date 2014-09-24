@@ -26,8 +26,8 @@ public class XmppTestConnection {
         this.xmppDomain = connection.xmppDomain;
     }
 
-    public String getHost() {
-        return host;
+    public String getXmppDomain() {
+        return xmppDomain;
     }
 
     public void connect() throws IOException, XMPPException, SmackException {
@@ -45,7 +45,7 @@ public class XmppTestConnection {
             SmackException.NotConnectedException,
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
-        String testUser = "testUser" + System.currentTimeMillis();
+        String testUser = "testuser" + System.currentTimeMillis();
         AccountManager acc = AccountManager.getInstance(connection);
         acc.createAccount(testUser, password);
         return testUser;

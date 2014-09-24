@@ -5,7 +5,7 @@ package com.skysea.group.packet.notify;
  */
 public class ApplyResultNotify extends HasOperatorNotify {
     private boolean result;
-    ApplyResultNotify() {
+    public ApplyResultNotify() {
         super(Type.MEMBER_APPLY_TO_JOIN_RESULT);
     }
 

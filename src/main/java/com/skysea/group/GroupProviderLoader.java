@@ -38,6 +38,7 @@ public class GroupProviderLoader implements ProviderLoader {
         NotifyPacketExtensionProvider notifyProvider = new NotifyPacketExtensionProvider();
         providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_MEMBER_NAMESPACE, notifyProvider));
         providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_NAMESPACE, notifyProvider));
+        providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_OWNER_NAMESPACE, notifyProvider));
         providers.add(new ExtensionProviderInfo("x", GroupService.GROUP_USER_NAMESPACE, notifyProvider));
         return providers;
     }

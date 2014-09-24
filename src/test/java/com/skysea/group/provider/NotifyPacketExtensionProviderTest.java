@@ -35,7 +35,5 @@ public class NotifyPacketExtensionProviderTest extends XmlPullPaserTestBase {
         assertEquals("user", notify.getMemberInfo().getUserName());
         assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
         assertNotNull("大家太吵了，不好意思，我退了先！", notify.getReason());
-
-
     }
 }

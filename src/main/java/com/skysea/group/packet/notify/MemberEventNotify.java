@@ -7,7 +7,7 @@ import com.skysea.group.MemberInfo;
  */
 public class MemberEventNotify extends HasReasonNotify {
     private MemberInfo memberInfo;
-    MemberEventNotify(Type type) {
+    public MemberEventNotify(Type type) {
         super(type);
     }
 
