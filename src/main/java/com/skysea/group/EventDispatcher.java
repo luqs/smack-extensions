@@ -67,7 +67,6 @@ final class EventDispatcher implements PacketListener {
      */
     @Override
     public void processPacket(Packet packet) throws SmackException.NotConnectedException {
-        System.out.println(packet.toXML());
         Notify notify = getNotifyFromExtensions(packet);
 
         if (notify != null) {
@@ -91,7 +90,6 @@ final class EventDispatcher implements PacketListener {
     }
 
     void dispatch(String jid, Notify notify) {
-        System.out.println(jid + ":" + notify.getType());
         switch (notify.getType()) {
             case MEMBER_JOINED:
                 dispatchJoined(jid, (MemberEventNotify)notify);

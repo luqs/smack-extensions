@@ -98,12 +98,18 @@ public class GroupTest extends GroupTestBase {
 
     public void testDestroy() throws Exception {
         // Arrange
-        String reason = "再见吧各位";
+        final String reason = "再见吧各位";
 
         // Act
         group.destroy(reason);
 
         // Assert
+        new Verifications(){
+            {
+                listener.destroy(group.getJid(), anyString, reason);
+                times = 1;
+            }
+        };
         try {
             group.getInfo();
         } catch (XMPPException.XMPPErrorException exp) {
@@ -117,7 +123,7 @@ public class GroupTest extends GroupTestBase {
     public void testKick() throws Exception {
         // Arrange
         NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
-        String otherUserName = helper.bindUser();
+        final String otherUserName = helper.bindUser();
         helper.applyToJoinGroup(group.getJid(), "我想加入啊");
 
         Thread.sleep(100);
@@ -129,13 +135,23 @@ public class GroupTest extends GroupTestBase {
 
         // Assert
         assertMember(group, otherUserName, false);
+        new Verifications(){
+            {
+                listener.memberKicked(group.getJid(), with(new Delegate<MemberInfo>() {
+                    public void validate(MemberInfo memberInfo) {
+                        assertEquals(otherUserName, memberInfo.getUserName());
+                    }
+                }), anyString, null);
+                times = 1;
+            }
+        };
     }
 
 
     public void testExit() throws Exception {
         // Arrange
         NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
-        String otherUserName = helper.bindUser();
+        final String otherUserName = helper.bindUser();
         Group theGroup = helper.applyToJoinGroup(group.getJid(), "我想加入啊");
 
         Thread.sleep(100);
@@ -147,11 +163,21 @@ public class GroupTest extends GroupTestBase {
 
         // Assert
         assertMember(group, otherUserName, false);
+        new Verifications(){
+            {
+                listener.memberExited(group.getJid(), with(new Delegate<MemberInfo>() {
+                    public void validate(MemberInfo memberInfo) {
+                        assertEquals(otherUserName, memberInfo.getUserName());
+                    }
+                }), "测试退出");
+                times = 1;
+            }
+        };
     }
 
     public void testChangeNickname() throws Exception {
         // Arrange
-        String newNickname = "cooper";
+        final String newNickname = "cooper";
 
         // Act
         group.changeNickname(newNickname);
@@ -172,6 +198,16 @@ public class GroupTest extends GroupTestBase {
         }
 
         assertEquals(newNickname, actualNickname);
+        new Verifications(){
+            {
+                listener.memberNicknameChanged(group.getJid(), with(new Delegate<MemberInfo> (){
+                    public void validate(MemberInfo memberInfo) {
+                        assertEquals(testUserName, memberInfo.getUserName());
+                    }
+                }), newNickname);
+                times = 1;
+            }
+        };
     }
 
     public void testGetMembers() throws Exception {
