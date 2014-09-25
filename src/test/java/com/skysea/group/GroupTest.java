@@ -242,13 +242,15 @@ public class GroupTest extends GroupTestBase {
             {
                 packetListener.processPacket(with(new Delegate<Packet>() {
                     public void validate(Packet packet) {
-                        MemberPacketExtension packetExt = (MemberPacketExtension)packet.getExtensions().toArray()[0];
-
+                        MemberPacketExtension packetExt = packet.getExtension(
+                                MemberPacketExtension.ELEMENT_NAME,
+                                MemberPacketExtension.NAMESPACE);
+                        MemberInfo memberInfo = packetExt.getMemberInfo();
+                        
                         assertEquals(group.getJid() + "/" + testUserName, packet.getFrom());
                         assertEquals(((Message)packet).getBody(), msg.getBody());
-
                         //assertEquals(testUserName, packetExt.getMemberInfo().getUserName());
-                        assertEquals(testUserName, packetExt.getMemberInfo().getNickname());
+                        assertEquals(testUserName, memberInfo.getNickname());
                     }
                 }));
                 times = 1;
