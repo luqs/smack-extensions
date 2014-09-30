@@ -6,14 +6,14 @@ public class GenericOperateTest extends TestCase {
 
     public void testToXML() throws Exception {
         // Arrange
-        GenericOperate ope = new GenericOperate(GenericOperate.APPLY);
-        ope.setReason("我也是80后啊！");
+        GenericOperate ope = new GenericOperate(GenericOperate.DESTROY);
+        ope.setReason("再见各位");
 
         // Act
         String xml = ope.toXML().toString();
 
         // Assert
-        assertEquals("<apply><reason>我也是80后啊！</reason></apply>", xml);
+        assertEquals("<destroy><reason>再见各位</reason></destroy>", xml);
 
     }
 }

@@ -58,10 +58,10 @@ public interface GroupEventListener {
      * 当新的用户申请到达。
      * @param groupJid 申请加入的圈子jid。
      * @param id 申请事务id。
-     * @param from 申请者jid。
+     * @param member 成员信息。
      * @param reason 申请验证消息。
      */
-    void applyArrived(String groupJid, String id, String from, String reason);
+    void applyArrived(String groupJid, String id, MemberInfo member, String reason);
 
     /**
      * 当申请已经被处理。

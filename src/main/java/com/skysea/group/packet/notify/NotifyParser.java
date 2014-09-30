@@ -68,7 +68,7 @@ public final class NotifyParser {
 
             ApplyNotify applyNotify = new ApplyNotify();
             applyNotify.setId(parser.getAttributeValue(null, "id"));
-            return parse((Notify) parseOperator(applyNotify));
+            return parse((Notify)applyNotify);
 
         } else if (GroupService.GROUP_USER_NAMESPACE.equals(namespace) &&
                 isNotifyElement(Notify.Type.MEMBER_APPLY_TO_JOIN_RESULT)) {

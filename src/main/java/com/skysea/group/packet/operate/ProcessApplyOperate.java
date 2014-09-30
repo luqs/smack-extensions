@@ -8,12 +8,15 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
  */
 public final class ProcessApplyOperate extends HasReasonOperate {
     private final String id;
+    private final String nickname;
     private final boolean result;
-    private String from;
+    private final String username;
 
-    public ProcessApplyOperate(String id, boolean result) {
+    public ProcessApplyOperate(String id, String username, String nickname, boolean result) {
         super("apply");
         this.id = id;
+        this.username = username;
+        this.nickname = nickname;
         this.result = result;
     }
 
@@ -21,30 +24,34 @@ public final class ProcessApplyOperate extends HasReasonOperate {
         return id;
     }
 
-    public String getFrom() {
-        return from;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
+    public String getUsername() {
+        return username;
     }
 
     public boolean getResult() {
         return result;
     }
 
+    public String getNickname() {
+        return nickname;
+    }
 
     @Override
     protected void startElement(XmlStringBuilder builder) {
         super.startElement(builder);
         builder.attribute("id", id);
-        builder.attribute("from", from);
     }
 
     @Override
     protected void childrenElements(XmlStringBuilder builder) {
-        builder.halfOpenElement(result ? "agree" : "decline");
-        builder.closeEmptyElement();
+        builder.halfOpenElement(result ? "agree" : "decline")
+                .closeEmptyElement()
+                .halfOpenElement("member")
+                .attribute("username", username)
+                .optAttribute("nickname", nickname)
+                .closeEmptyElement();
         super.childrenElements(builder);
     }
+
+
 }

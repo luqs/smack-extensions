@@ -16,10 +16,6 @@ public final class GenericOperate extends HasReasonOperate {
      */
     public final static String DESTROY = "destroy";
 
-    /**
-     * 申请加入圈子的操作类型。
-     */
-    public final static String APPLY = "apply";
 
     public GenericOperate(String type) {
         super(type);

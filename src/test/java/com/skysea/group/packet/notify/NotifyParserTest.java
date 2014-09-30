@@ -96,7 +96,8 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
         // Arrange
         NotifyParser parser = parser(
                 "http://skysea.com/protocol/group#owner",
-                "<apply id='s2fd1' from='user@skysea.com'>\n" +
+                "<apply id='s2fd1'>\n" +
+                        "<member username='user' nickname='碧眼狐狸' />"+
                         "  \t\t<reason>我也是80后，请让我加入吧！</reason>\n" +
                         "  \t</apply>");
 
@@ -106,10 +107,9 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
         // Assert
         assertEquals(Notify.Type.MEMBER_APPLY_TO_JOIN, notify.getType());
         assertEquals("s2fd1", notify.getId());
-        assertEquals("user@skysea.com", notify.getFrom());
         assertEquals("我也是80后，请让我加入吧！", notify.getReason());
-        //assertEquals("user", notify.getMemberInfo().getUserName());
-        //assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
+        assertEquals("user", notify.getMemberInfo().getUserName());
+        assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
     }
 
     public void testParse_When_Member_Apply_To_Join_Pass() throws Exception {

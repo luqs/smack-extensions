@@ -5,11 +5,10 @@ import com.skysea.XmppTestConnection;
 import com.skysea.group.packet.MemberPacketExtension;
 import mockit.Delegate;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.FromMatchesFilter;
+import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
@@ -66,10 +65,6 @@ public class GroupTest extends GroupTestBase {
         updateForm.addField(field);
         field.addValue("new subject");
 
-        field = new FormField("subject");
-        updateForm.addField(field);
-        field.addValue("new subject");
-
         field = new FormField("description");
         updateForm.addField(field);
         field.addValue("new description");
@@ -93,7 +88,6 @@ public class GroupTest extends GroupTestBase {
 
         Form actualForm = new Form(b);
         for (FormField field : a.getFields()) {
-
             assertEquals(
                     field.getValues().get(0),
                     actualForm.getField(field.getVariable()).getValues().get(0));
@@ -128,7 +122,7 @@ public class GroupTest extends GroupTestBase {
         // Arrange
         NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
         final String otherUserName = helper.bindUser();
-        helper.applyToJoinGroup(group.getJid(), "我想加入啊");
+        helper.applyToJoinGroup(group.getJid(), null, "我想加入啊");
 
         Thread.sleep(100);
         assertMember(group, otherUserName, true);
@@ -156,7 +150,7 @@ public class GroupTest extends GroupTestBase {
         // Arrange
         NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
         final String otherUserName = helper.bindUser();
-        Group theGroup = helper.applyToJoinGroup(group.getJid(), "我想加入啊");
+        Group theGroup = helper.applyToJoinGroup(group.getJid(), null, "我想加入啊");
 
         Thread.sleep(100);
         assertMember(group, otherUserName, true);
@@ -207,6 +201,7 @@ public class GroupTest extends GroupTestBase {
                 listener.memberNicknameChanged(group.getJid(), with(new Delegate<MemberInfo> (){
                     public void validate(MemberInfo memberInfo) {
                         assertEquals(testUserName, memberInfo.getUserName());
+                        assertEquals(testUserName, memberInfo.getNickname());
                     }
                 }), newNickname);
                 times = 1;
@@ -227,7 +222,12 @@ public class GroupTest extends GroupTestBase {
 
     public void testSend() throws Exception {
         // Arrange
-        testConnection.getConnection().addPacketListener(packetListener, null);
+        testConnection.getConnection().addPacketListener(packetListener, new PacketFilter() {
+            @Override
+            public boolean accept(Packet packet) {
+                return packet instanceof Message && ((Message)packet).getType()== Message.Type.groupchat;
+            }
+        });
 
         final Message msg = new Message();
         msg.setType(Message.Type.groupchat);
@@ -257,7 +257,7 @@ public class GroupTest extends GroupTestBase {
 
     }
 
-    public void testGroup() throws Exception {
+    public void testGetGroup() throws Exception {
         // Arrange
         String jid = "12@group.skysea.com";
 
@@ -283,25 +283,25 @@ public class GroupTest extends GroupTestBase {
 
     public static class GroupApplyTest extends GroupTestBase {
         private Group group;
+        private String otherNickName;
+        private String applyReason;
         private String otherUserName;
         private String otherUserNameJid;
-        @Mocked
-        GroupEventListener ownerListener;
-        @Mocked
-        GroupEventListener userListener;
+        @Mocked GroupEventListener ownerListener;
+        @Mocked GroupEventListener userListener;
         private NewUserTestHelper userHelper;
         private String ownerJid;
 
         @Override
         protected void setUp() throws Exception {
             super.setUp();
-
-
             userHelper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
             userHelper.getGroupService().addGroupEventListener(userListener);
 
             otherUserName = userHelper.bindUser().toLowerCase();
             otherUserNameJid = otherUserName + "@" + testConnection.getXmppDomain();
+            otherNickName = "@" + otherUserName + "@";
+            applyReason = "我想加入啊";
 
             ownerJid = testUserName.toLowerCase() + "@" + testConnection.getXmppDomain();
         }
@@ -314,13 +314,18 @@ public class GroupTest extends GroupTestBase {
             autoApplyToJoin();
 
             // Act
-            group.processApply("invalid", otherUserNameJid, true, "welcome");
+            group.processApply("testid", otherUserName, otherNickName, true, "welcome");
 
             // Assert
             assertMember(group, otherUserName, true);
             new Verifications() {
                 {
-                    ownerListener.applyArrived(group.getJid(), anyString, otherUserNameJid, "我想加入啊");
+                    ownerListener.applyArrived(group.getJid(), anyString, with(new Delegate<MemberInfo>() {
+                        public void validate(MemberInfo memberInfo) {
+                            assertEquals(otherUserName, memberInfo.getUserName());
+                            assertEquals(otherNickName, memberInfo.getNickname());
+                        }
+                    }), "我想加入啊");
                     times = 1;
 
                     userListener.applyProcessed(group.getJid(), true, with(new Delegate<String>() {
@@ -333,7 +338,7 @@ public class GroupTest extends GroupTestBase {
                     ownerListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
                         public void validate(MemberInfo info) {
                             assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherUserName, info.getNickname());
+                            assertEquals(otherNickName, info.getNickname());
                         }
                     }));
                     times = 1;
@@ -341,7 +346,7 @@ public class GroupTest extends GroupTestBase {
                     userListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
                         public void validate(MemberInfo info) {
                             assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherUserName, info.getNickname());
+                            assertEquals(otherNickName, info.getNickname());
                         }
                     }));
                     times = 1;
@@ -357,13 +362,18 @@ public class GroupTest extends GroupTestBase {
             autoApplyToJoin();
 
             // Act
-            group.processApply("invalid", otherUserNameJid, false, "sorry");
+            group.processApply("testid", otherUserName, otherNickName, false, "sorry");
 
             // Assert
             assertMember(group, otherUserName, false);
             new Verifications() {
                 {
-                    ownerListener.applyArrived(group.getJid(), anyString, otherUserNameJid, "我想加入啊");
+                    ownerListener.applyArrived(group.getJid(), anyString, with(new Delegate<MemberInfo>() {
+                        public void validate(MemberInfo memberInfo) {
+                            assertEquals(otherUserName, memberInfo.getUserName());
+                            assertEquals(otherNickName, memberInfo.getNickname());
+                        }
+                    }), "我想加入啊");
                     times = 1;
 
                     userListener.applyProcessed(group.getJid(), false, with(new Delegate<String>() {
@@ -393,7 +403,7 @@ public class GroupTest extends GroupTestBase {
                     ownerListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
                         public void validate(MemberInfo info) {
                             assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherUserName, info.getNickname());
+                            assertEquals(otherNickName, info.getNickname());
                         }
                     }));
                     times = 1;
@@ -401,7 +411,7 @@ public class GroupTest extends GroupTestBase {
                     userListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
                         public void validate(MemberInfo info) {
                             assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherUserName, info.getNickname());
+                            assertEquals(otherNickName, info.getNickname());
                         }
                     }));
                     times = 1;
@@ -423,7 +433,7 @@ public class GroupTest extends GroupTestBase {
         }
 
         private void autoApplyToJoin() throws Exception {
-            userHelper.applyToJoinGroup(group.getJid(), "我想加入啊");
+            userHelper.applyToJoinGroup(group.getJid(), otherNickName, "我想加入啊");
         }
 
     }
@@ -454,9 +464,9 @@ public class GroupTest extends GroupTestBase {
             return groupService1;
         }
 
-        public Group applyToJoinGroup(String jid, String reason) throws Exception {
+        public Group applyToJoinGroup(String jid, String nickname, String reason) throws Exception {
             Group group = groupService1.getGroup(jid);
-            group.applyToJoin(reason);
+            group.applyToJoin(nickname, reason);
             return group;
         }
     }

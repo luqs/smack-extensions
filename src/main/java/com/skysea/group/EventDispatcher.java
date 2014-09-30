@@ -147,7 +147,7 @@ final class EventDispatcher implements PacketListener {
 
     private void dispatchApply(String jid, ApplyNotify notify) {
         for (GroupEventListener listener : listeners) {
-            listener.applyArrived(jid, notify.getId(), notify.getFrom(), notify.getReason());
+            listener.applyArrived(jid, notify.getId(), notify.getMemberInfo(), notify.getReason());
         }
     }
 

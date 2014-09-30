@@ -109,18 +109,21 @@ public final class Group {
 
     /**
      * 申请加入圈子。
+     * @param nickname 圈子昵称
      * @param reason 申请验证消息。
      * @throws SmackException.NotConnectedException
      * @throws XMPPException.XMPPErrorException
      * @throws SmackException.NoResponseException
      */
-    public void applyToJoin(String reason) throws
+    public void applyToJoin(String nickname, String reason) throws
             SmackException.NotConnectedException,
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        GenericOperate ope = new GenericOperate(GenericOperate.APPLY);
+        ApplyOperate ope = new ApplyOperate();
+        ope.setNickname(nickname);
         ope.setReason(reason);
+
         XPacket packet = new XPacket(GroupService.GROUP_USER_NAMESPACE, ope);
         request(packet);
     }
@@ -128,20 +131,20 @@ public final class Group {
     /**
      * 处理成员加入申请。
      * @param id 申请事务Id。
-     * @param proposer 申请人jid。
+     * @param username 申请人用户名。
+     * @param nickname 申请人昵称。
      * @param agree 是否同意申请。
      * @param reason 同意/拒绝的原因。
      * @throws SmackException.NotConnectedException
      * @throws XMPPException.XMPPErrorException
      * @throws SmackException.NoResponseException
      */
-    public void processApply(String id, String proposer, boolean agree , String reason) throws
+    public void processApply(String id, String username, String nickname, boolean agree, String reason) throws
              SmackException.NotConnectedException,
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        ProcessApplyOperate ope = new ProcessApplyOperate(id, agree);
-        ope.setFrom(proposer);
+        ProcessApplyOperate ope = new ProcessApplyOperate(id, username, nickname, agree);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);

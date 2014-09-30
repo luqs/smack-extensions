@@ -39,7 +39,6 @@ public class EventDispatcherTest extends TestCase {
         // Arrange
         final ApplyNotify notify = new ApplyNotify();
         notify.setMemberInfo(MEMBER_INFO);
-        notify.setFrom("user@skysea.com");
         notify.setId("123");
         notify.setReason("我想加入");
 
@@ -52,7 +51,7 @@ public class EventDispatcherTest extends TestCase {
                 listener.applyArrived(
                         GROUP_JID,
                         notify.getId(),
-                        notify.getFrom(),
+                        MEMBER_INFO,
                         notify.getReason());
                 times = 1;
             }
