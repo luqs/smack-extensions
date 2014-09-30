@@ -1,17 +1,15 @@
 package com.skysea.group;
 
-import com.skysea.GroupTestBase;
-import com.skysea.XmppTestConnection;
 import com.skysea.group.packet.MemberPacketExtension;
 import mockit.Delegate;
 import mockit.Mocked;
+import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
@@ -21,17 +19,34 @@ import java.util.HashMap;
 public class GroupTest extends GroupTestBase {
     private DataForm createForm;
     private Group group;
-    @Mocked GroupEventListener listener;
+    @Mocked GroupEventListener ownerListener;
+    @Mocked GroupEventListener userListener;
     @Mocked PacketListener packetListener;
-
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        groupService.addGroupEventListener(ownerListener);
 
+        /* 每个TestCase运行之前，都创建一个新的圈子 */
         createForm = GroupServiceTest.getCreateForm();
         group = groupService.create(createForm);
-        groupService.addGroupEventListener(listener);
+    }
+
+    public void testCreateGroup() throws Exception {
+        // Arrange
+        final DataForm form = GroupServiceTest.getCreateForm();
+
+        // Act
+        final Group retGroup = groupService.create(form);
+
+        // Assert
+        new Verifications() {
+            {
+                ownerListener.created(retGroup.getJid(), form);
+                times = 1;
+            }
+        };
     }
 
     public void testGetInfo() throws Exception {
@@ -42,11 +57,7 @@ public class GroupTest extends GroupTestBase {
         Form actualForm = new Form(group.getInfo());
 
         // Assert
-        for (FormField field : expectForm.getFields()) {
-            assertEquals(
-                    field.getValues().get(0),
-                    actualForm.getField(field.getVariable()).getValues().get(0));
-        }
+        assertFormEquals(expectForm.getDataFormToSend(), actualForm.getDataFormToSend());
         assertNotNull(actualForm.getField("id").getValues().get(0));
         assertNotNull(actualForm.getField("createTime").getValues().get(0));
         assertEquals(group.getJid(), actualForm.getField("jid").getValues().get(0));
@@ -85,7 +96,6 @@ public class GroupTest extends GroupTestBase {
     }
 
     private void assertFormEquals(DataForm a, DataForm b) {
-
         Form actualForm = new Form(b);
         for (FormField field : a.getFields()) {
             assertEquals(
@@ -102,9 +112,9 @@ public class GroupTest extends GroupTestBase {
         group.destroy(reason);
 
         // Assert
-        new Verifications(){
+        new Verifications() {
             {
-                listener.destroyed(group.getJid(), anyString, reason);
+                ownerListener.destroyed(group.getJid(), testContext.getUserJid(), reason);
                 times = 1;
             }
         };
@@ -118,28 +128,63 @@ public class GroupTest extends GroupTestBase {
     }
 
 
+    private static class ApplyHelper {
+        private String nickname = "碧眼狐狸";
+        private final GroupTestContext userTestContext;
+
+        public ApplyHelper(GroupTestContext ownerTestContext) throws Exception {
+            userTestContext = new GroupTestContext(ownerTestContext);
+            userTestContext.initialize();
+            userTestContext.bindUser();
+        }
+
+        public MemberInfo applyToJoin(Group group, String reason) throws Exception {
+            userTestContext
+                    .getGroupService()
+                    .getGroup(group.getJid())
+                    .applyToJoin(nickname, reason);
+            return new MemberInfo(userTestContext.getUserName(), nickname);
+        }
+
+        public void exit(Group group, String reason) throws Exception {
+            userTestContext
+                    .getGroupService()
+                    .getGroup(group.getJid())
+                    .exit(reason);
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public GroupTestContext getUserTestContext() {
+            return userTestContext;
+        }
+
+
+    }
+
     public void testKick() throws Exception {
         // Arrange
-        NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
-        final String otherUserName = helper.bindUser();
-        helper.applyToJoinGroup(group.getJid(), null, "我想加入啊");
+        final String kickReason = "测试踢出";
+        ApplyHelper applyHelper = new ApplyHelper(testContext);
+        applyHelper.getUserTestContext().getGroupService().addGroupEventListener(userListener);
 
-        Thread.sleep(100);
-        assertMember(group, otherUserName, true);
+        final MemberInfo joinedMember = applyHelper.applyToJoin(group, "我想加入");
+        assertMember(group, joinedMember, true);
 
         // Act
-        group.kick(otherUserName, "测试踢出");
-        Thread.sleep(100);
+        group.kick(joinedMember.getUserName(), kickReason);
 
         // Assert
-        assertMember(group, otherUserName, false);
-        new Verifications(){
+        assertMember(group, joinedMember, false);
+        new Verifications() {
             {
-                listener.memberKicked(group.getJid(), with(new Delegate<MemberInfo>() {
-                    public void validate(MemberInfo memberInfo) {
-                        assertEquals(otherUserName, memberInfo.getUserName());
-                    }
-                }), anyString, null);
+                ownerListener.memberKicked(group.getJid(), joinedMember, withPrefix(testContext.getUserJid()), null);
+                times = 1;
+
+                /* 只有被踢出者才能收到reason */
+                userListener.memberKicked(group.getJid(), joinedMember, withPrefix(testContext.getUserJid()), kickReason);
                 times = 1;
             }
         };
@@ -148,26 +193,19 @@ public class GroupTest extends GroupTestBase {
 
     public void testExit() throws Exception {
         // Arrange
-        NewUserTestHelper helper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
-        final String otherUserName = helper.bindUser();
-        Group theGroup = helper.applyToJoinGroup(group.getJid(), null, "我想加入啊");
-
-        Thread.sleep(100);
-        assertMember(group, otherUserName, true);
+        final String exitReason = "测试退出";
+        ApplyHelper applyHelper = new ApplyHelper(testContext);
+        final MemberInfo joinedMember = applyHelper.applyToJoin(group, "我想加入");
+        assertMember(group, joinedMember, true);
 
         // Act
-        theGroup.exit("测试退出");
-        Thread.sleep(100);
+        applyHelper.exit(group, exitReason);
 
         // Assert
-        assertMember(group, otherUserName, false);
-        new Verifications(){
+        assertMember(group, joinedMember, false);
+        new Verifications() {
             {
-                listener.memberExited(group.getJid(), with(new Delegate<MemberInfo>() {
-                    public void validate(MemberInfo memberInfo) {
-                        assertEquals(otherUserName, memberInfo.getUserName());
-                    }
-                }), "测试退出");
+                ownerListener.memberExited(group.getJid(), joinedMember, exitReason);
                 times = 1;
             }
         };
@@ -176,34 +214,20 @@ public class GroupTest extends GroupTestBase {
     public void testChangeNickname() throws Exception {
         // Arrange
         final String newNickname = "cooper";
+        final MemberInfo changeBefore = new MemberInfo(testContext.getUserName(), testContext.getUserName());
+        assertMember(group, changeBefore, true);
 
         // Act
         group.changeNickname(newNickname);
 
         // Assert
-        String actualNickname = null;
-        for (DataForm.Item item : group.getMembers().getItems()) {
+        assertMember(group, changeBefore, false);
+        MemberInfo changeAfter = new MemberInfo(testContext.getUserName(), newNickname);
+        assertMember(group, changeAfter, true);
 
-            HashMap<String, FormField> fields = new HashMap<String, FormField>();
-            for (FormField field : item.getFields()) {
-                fields.put(field.getVariable(), field);
-            }
-
-            FormField field = fields.get("username");
-            if (field.getValues().get(0).equalsIgnoreCase(testUserName)) {
-                actualNickname = fields.get("nickname").getValues().get(0);
-            }
-        }
-
-        assertEquals(newNickname, actualNickname);
-        new Verifications(){
+        new Verifications() {
             {
-                listener.memberNicknameChanged(group.getJid(), with(new Delegate<MemberInfo> (){
-                    public void validate(MemberInfo memberInfo) {
-                        assertEquals(testUserName, memberInfo.getUserName());
-                        assertEquals(testUserName, memberInfo.getNickname());
-                    }
-                }), newNickname);
+                ownerListener.memberNicknameChanged(group.getJid(), changeBefore, newNickname);
                 times = 1;
             }
         };
@@ -216,16 +240,16 @@ public class GroupTest extends GroupTestBase {
         DataForm resultForm = group.getMembers();
 
         // Assert
-        assertMember(group, testUserName, true);
+        assertMember(group, new MemberInfo(testContext.getUserName(), testContext.getUserName()), true);
     }
 
 
     public void testSend() throws Exception {
         // Arrange
-        testConnection.getConnection().addPacketListener(packetListener, new PacketFilter() {
+        testContext.getConnection().addPacketListener(packetListener, new PacketFilter() {
             @Override
             public boolean accept(Packet packet) {
-                return packet instanceof Message && ((Message)packet).getType()== Message.Type.groupchat;
+                return packet instanceof Message && ((Message) packet).getType() == Message.Type.groupchat;
             }
         });
 
@@ -238,7 +262,7 @@ public class GroupTest extends GroupTestBase {
 
         // Assert
         Thread.sleep(100);
-        new Verifications(){
+        new Verifications() {
             {
                 packetListener.processPacket(with(new Delegate<Packet>() {
                     public void validate(Packet packet) {
@@ -246,11 +270,10 @@ public class GroupTest extends GroupTestBase {
                                 MemberPacketExtension.ELEMENT_NAME,
                                 MemberPacketExtension.NAMESPACE);
                         MemberInfo memberInfo = packetExt.getMemberInfo();
-                        
-                        assertEquals(group.getJid() + "/" + testUserName, packet.getFrom());
-                        assertEquals(((Message)packet).getBody(), msg.getBody());
-                        //assertEquals(testUserName, packetExt.getMemberInfo().getUserName());
-                        assertEquals(testUserName, memberInfo.getNickname());
+
+                        assertEquals(group.getJid() + "/" + testContext.getUserName(), packet.getFrom());
+                        assertEquals(((Message) packet).getBody(), msg.getBody());
+                        assertEquals(testContext.getUserName(), memberInfo.getNickname());
                     }
                 }));
                 times = 1;
@@ -270,87 +293,67 @@ public class GroupTest extends GroupTestBase {
         assertEquals(jid, group.getJid());
     }
 
-    protected static void assertMember(Group group, String user, boolean has) throws Exception {
+    protected static void assertMember(Group group, MemberInfo user, boolean has) throws Exception {
         boolean found = false;
         for (DataForm.Item item : group.getMembers().getItems()) {
-            for (FormField field : item.getFields()) {
-                if ("username".equals(field.getVariable()) && field.getValues().get(0).equalsIgnoreCase(user)) {
-                    found = true;
-                }
+            HashMap<String, String> rows = mapFields(item);
+            if (rows.get("username").equalsIgnoreCase(user.getUserName()) &&
+                    rows.get("nickname").equalsIgnoreCase(user.getNickname())) {
+                found = true;
             }
         }
         assertEquals(has, found);
     }
 
+    private static HashMap<String, String> mapFields(DataForm.Item item) {
+        HashMap<String, String> maps = new HashMap<String, String>(item.getFields().size());
+        for (FormField field : item.getFields()) {
+            maps.put(field.getVariable(), field.getValues().get(0));
+        }
+        return maps;
+    }
+
 
     public static class GroupApplyTest extends GroupTestBase {
+        private String applyReason = "我希望加入";
         private Group group;
-        private String otherNickName;
-        private String applyReason;
-        private String otherUserName;
-        private String otherUserNameJid;
         @Mocked GroupEventListener ownerListener;
         @Mocked GroupEventListener userListener;
-        private NewUserTestHelper userHelper;
-        private String ownerJid;
+        private ApplyHelper applyHelper;
 
         @Override
         protected void setUp() throws Exception {
             super.setUp();
-            userHelper = new NewUserTestHelper(testConnection, groupService.getServiceDomain());
-            userHelper.getGroupService().addGroupEventListener(userListener);
 
-            otherUserName = userHelper.bindUser().toLowerCase();
-            otherUserNameJid = otherUserName + "@" + testConnection.getXmppDomain();
-            otherNickName = "@" + otherUserName + "@";
-            applyReason = "我想加入啊";
-
-            ownerJid = testUserName.toLowerCase() + "@" + testConnection.getXmppDomain();
+            applyHelper = new ApplyHelper(testContext);
+            applyHelper.getUserTestContext().getGroupService().addGroupEventListener(userListener);
+            testContext.getGroupService().addGroupEventListener(ownerListener);
         }
 
         public void testProcessApply_When_Owner_Agree() throws Exception {
             // Arrange
             createHalfOpenGroup();
-            groupService.addGroupEventListener(ownerListener);
+            //groupService.addGroupEventListener(ownerListener);
 
-            autoApplyToJoin();
+            final MemberInfo applyMember = applyHelper.applyToJoin(group, applyReason);
 
             // Act
-            group.processApply("testid", otherUserName, otherNickName, true, "welcome");
+            group.processApply("testid", applyMember.getUserName(), applyMember.getNickname(), true, "welcome");
 
             // Assert
-            assertMember(group, otherUserName, true);
+            assertMember(group, applyMember, true);
             new Verifications() {
                 {
-                    ownerListener.applyArrived(group.getJid(), anyString, with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo memberInfo) {
-                            assertEquals(otherUserName, memberInfo.getUserName());
-                            assertEquals(otherNickName, memberInfo.getNickname());
-                        }
-                    }), "我想加入啊");
+                    ownerListener.applyArrived(group.getJid(), anyString, applyMember,  applyReason);
                     times = 1;
 
-                    userListener.applyProcessed(group.getJid(), true, with(new Delegate<String>() {
-                        public void validate(String jid) {
-                            assertEquals(ownerJid, StringUtils.parseBareAddress(jid));
-                        }
-                    }), "welcome");
+                    userListener.applyProcessed(group.getJid(), true, testContext.getUserJid(), "welcome");
                     times = 1;
 
-                    ownerListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo info) {
-                            assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherNickName, info.getNickname());
-                        }
-                    }));
+                    ownerListener.memberJoined(group.getJid(), applyMember);
                     times = 1;
 
-                    userListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo info) {
-                            assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherNickName, info.getNickname());
-                        }
-                    }));
+                    userListener.memberJoined(group.getJid(), applyMember);
                     times = 1;
                 }
             };
@@ -359,30 +362,20 @@ public class GroupTest extends GroupTestBase {
         public void testProcessApply_When_Owner_Decline() throws Exception {
             // Arrange
             createHalfOpenGroup();
-            groupService.addGroupEventListener(ownerListener);
+            final MemberInfo applyMember = applyHelper.applyToJoin(group, applyReason);
 
-            autoApplyToJoin();
 
             // Act
-            group.processApply("testid", otherUserName, otherNickName, false, "sorry");
+            group.processApply("testid", applyMember.getUserName(), applyMember.getNickname(), false, "sorry");
 
             // Assert
-            assertMember(group, otherUserName, false);
+            assertMember(group, applyMember, false);
             new Verifications() {
                 {
-                    ownerListener.applyArrived(group.getJid(), anyString, with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo memberInfo) {
-                            assertEquals(otherUserName, memberInfo.getUserName());
-                            assertEquals(otherNickName, memberInfo.getNickname());
-                        }
-                    }), "我想加入啊");
+                    ownerListener.applyArrived(group.getJid(), anyString, applyMember, applyReason);
                     times = 1;
 
-                    userListener.applyProcessed(group.getJid(), false, with(new Delegate<String>() {
-                    public void validate(String jid) {
-                        assertEquals(ownerJid, StringUtils.parseBareAddress(jid));
-                    }
-                    }), "sorry");
+                    userListener.applyProcessed(group.getJid(), false, testContext.getUserJid(), "sorry");
                     times = 1;
                 }
             };
@@ -391,31 +384,23 @@ public class GroupTest extends GroupTestBase {
         public void testApplyToJoin_When_Group_Is_Public() throws Exception {
             // Arrange
             createOpenGroup();
-            groupService.addGroupEventListener(ownerListener);
+            //groupService.addGroupEventListener(ownerListener);
 
 
             // Act
-            autoApplyToJoin();
-            Thread.sleep(100);
+            final MemberInfo joinedMember = applyHelper.applyToJoin(group, applyReason);
 
             // Assert
-            assertMember(group, otherUserName, true);
+            assertMember(group, joinedMember, true);
             new Verifications() {
                 {
-                    ownerListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo info) {
-                            assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherNickName, info.getNickname());
-                        }
-                    }));
+                    ownerListener.memberJoined(group.getJid(), joinedMember);
                     times = 1;
 
-                    userListener.memberJoined(group.getJid(), with(new Delegate<MemberInfo>() {
-                        public void validate(MemberInfo info) {
-                            assertEquals(otherUserName, info.getUserName());
-                            assertEquals(otherNickName, info.getNickname());
-                        }
-                    }));
+                    userListener.memberJoined(group.getJid(), joinedMember);
+                    times = 1;
+
+                    userListener.applyProcessed(group.getJid(), true, group.getJid(), null);
                     times = 1;
                 }
             };
@@ -433,43 +418,6 @@ public class GroupTest extends GroupTestBase {
             form.setAnswer("openness", (String) "AFFIRM_REQUIRED");
             group = groupService.create(form.getDataFormToSend());
         }
-
-        private void autoApplyToJoin() throws Exception {
-            userHelper.applyToJoinGroup(group.getJid(), otherNickName, "我想加入啊");
-        }
-
     }
 
-    static class NewUserTestHelper {
-        private final XmppTestConnection connection;
-        private String userName;
-        private GroupService groupService1;
-
-        public NewUserTestHelper(XmppTestConnection baseConnection, String groupServiceDomain) throws Exception {
-            connection = new XmppTestConnection(baseConnection);
-            connection.connect();
-            groupService1 = new GroupService(connection.getConnection(), groupServiceDomain);
-        }
-
-        public String bindUser() throws Exception {
-            if (userName != null) {
-                throw new IllegalStateException("already bind.");
-            }
-            return userName = connection.createTestUserAndLogin();
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public GroupService getGroupService() {
-            return groupService1;
-        }
-
-        public Group applyToJoinGroup(String jid, String nickname, String reason) throws Exception {
-            Group group = groupService1.getGroup(jid);
-            group.applyToJoin(nickname, reason);
-            return group;
-        }
-    }
 }

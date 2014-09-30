@@ -1,6 +1,5 @@
 package com.skysea.group;
 
-import com.skysea.GroupTestBase;
 import com.skysea.group.packet.GroupSearch;
 import com.skysea.group.packet.RSMPacket;
 import mockit.Mocked;

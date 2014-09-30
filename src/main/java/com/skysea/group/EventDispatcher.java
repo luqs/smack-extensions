@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
+ * 事件分派器。
  * Created by zhangzhi on 2014/9/22.
  */
 final class EventDispatcher implements PacketListener {
@@ -76,7 +77,6 @@ final class EventDispatcher implements PacketListener {
 
     /**
      * 从packet中取得Notify扩展信息。
-     *
      * @param packet
      * @return
      */
@@ -119,6 +119,7 @@ final class EventDispatcher implements PacketListener {
         for (GroupEventListener listener:listeners) {
             listener.created(jid, createFrom);
         }
+
     }
 
     private void dispatchProfile(String jid, ProfileChangedNotify notify) {
