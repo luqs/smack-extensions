@@ -1,7 +1,5 @@
 package com.skysea.group;
 
-import com.skysea.XmppTestBase;
-import com.skysea.group.GroupService;
 import junit.framework.TestCase;
 
 /**
@@ -14,7 +12,10 @@ public abstract class GroupTestBase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        testContext = new GroupTestContext("localhost", 5222, "skysea.com");
+        testContext = new GroupTestContext(
+                System.getProperty("xmpp.host", "localhost"),
+                Integer.parseInt(System.getProperty("xmpp.port", "5222")),
+                System.getProperty("xmpp.domain", "skysea.com"));
         testContext.initialize();
         testContext.bindUser();
 
