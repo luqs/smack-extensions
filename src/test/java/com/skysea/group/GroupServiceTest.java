@@ -64,6 +64,26 @@ public class GroupServiceTest extends GroupTestBase {
         assertEquals(1, result.getDataForm().getItems().size());
     }
 
+    public void testSearch_When_Group_Is_Private() throws Exception {
+        // Arrange
+        Form createForm = new Form(getCreateForm());
+        createForm.setAnswer("openness", "PRIVATE");
+        Group group = groupService.create(createForm.getDataFormToSend());
+
+        DataForm searchForm = new DataForm("submit");
+        FormField field = new FormField("id");
+        field.addValue(StringUtils.parseName(group.getJid()));
+        searchForm.addField(field);
+
+        // Act
+        GroupSearch result = groupService.search(new GroupSearch(searchForm, null));
+
+        // Assert
+        assertEquals(0, result.getRsm().getCount());
+        assertEquals(0, result.getDataForm().getItems().size());
+
+    }
+
     public void testGetJoinedGroups() throws Exception {
         // Arrange
         Group group = groupService.create(getCreateForm());
@@ -106,6 +126,7 @@ public class GroupServiceTest extends GroupTestBase {
         form.addField(field);
 
         field = new FormField("openness");
+        field.setType(FormField.TYPE_TEXT_SINGLE);
         field.addValue("PUBLIC");
         form.addField(field);
         return form;
