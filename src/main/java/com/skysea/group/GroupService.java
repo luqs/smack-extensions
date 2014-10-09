@@ -109,7 +109,7 @@ public final class GroupService {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        QueryPacket packet = new QueryPacket(GROUP_MEMBER_NAMESPACE, "groups");
+        QueryPacket packet = new QueryPacket(GROUP_USER_NAMESPACE, "groups");
 
         packet = (QueryPacket)request(packet);
         return packet.getDataForm();

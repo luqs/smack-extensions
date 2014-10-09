@@ -24,8 +24,7 @@ public class GroupProviderLoader implements ProviderLoader {
         //providers.add(new IQProviderInfo("x", GroupService.GROUP_MEMBER_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("x", GroupService.GROUP_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("query", GroupService.GROUP_NAMESPACE, groupPacketProvider));
-        providers.add(new IQProviderInfo("query", GroupService.GROUP_MEMBER_NAMESPACE, groupPacketProvider));
-
+        providers.add(new IQProviderInfo("query", GroupService.GROUP_USER_NAMESPACE, groupPacketProvider));
         providers.add(new IQProviderInfo("query", "jabber:iq:search", new SearchProvider()));
         return providers;
     }

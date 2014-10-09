@@ -3,7 +3,6 @@ package com.skysea.group;
 import com.skysea.group.packet.MemberPacketExtension;
 import mockit.Delegate;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
@@ -128,42 +127,6 @@ public class GroupTest extends GroupTestBase {
     }
 
 
-    private static class ApplyHelper {
-        private String nickname = "碧眼狐狸";
-        private final GroupTestContext userTestContext;
-
-        public ApplyHelper(GroupTestContext ownerTestContext) throws Exception {
-            userTestContext = new GroupTestContext(ownerTestContext);
-            userTestContext.initialize();
-            userTestContext.bindUser();
-        }
-
-        public MemberInfo applyToJoin(Group group, String reason) throws Exception {
-            userTestContext
-                    .getGroupService()
-                    .getGroup(group.getJid())
-                    .applyToJoin(nickname, reason);
-            return new MemberInfo(userTestContext.getUserName(), nickname);
-        }
-
-        public void exit(Group group, String reason) throws Exception {
-            userTestContext
-                    .getGroupService()
-                    .getGroup(group.getJid())
-                    .exit(reason);
-        }
-
-        public String getNickname() {
-            return nickname;
-        }
-
-        public GroupTestContext getUserTestContext() {
-            return userTestContext;
-        }
-
-
-    }
-
     public void testKick() throws Exception {
         // Arrange
         final String kickReason = "测试踢出";
@@ -188,6 +151,20 @@ public class GroupTest extends GroupTestBase {
                 times = 1;
             }
         };
+    }
+
+    public void testInviteToJoin() throws Exception {
+        // Arrange
+        GroupTestContext otherUser = new GroupTestContext(testContext);
+        otherUser.initialize();
+        otherUser.bindUser();
+        MemberInfo member = new MemberInfo(otherUser.getUserName(), "独孤求败");
+
+        // Act
+        group.inviteToJoin(member.getUserName(), member.getNickname());
+
+        // Assert
+        assertMember(group, member, true);
     }
 
 
@@ -279,7 +256,6 @@ public class GroupTest extends GroupTestBase {
                 times = 1;
             }
         };
-
     }
 
     public void testGetGroup() throws Exception {

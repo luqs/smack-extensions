@@ -7,6 +7,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
@@ -129,6 +130,28 @@ public final class Group {
     }
 
     /**
+     * 邀请用户加入圈子。
+     * @param username 被邀请的用户名。
+     * @param nickname 被邀请的用户昵称。
+     * @throws SmackException.NotConnectedException
+     * @throws XMPPException.XMPPErrorException
+     * @throws SmackException.NoResponseException
+     */
+    public void inviteToJoin(String username, String nickname) throws
+            SmackException.NotConnectedException,
+            XMPPException.XMPPErrorException,
+            SmackException.NoResponseException {
+        if(username == null) { throw new NullPointerException("username is null."); }
+        if(username.length() == 0) { throw new IllegalArgumentException("username is invalid."); }
+
+        InviteOperate ope = new InviteOperate(username, nickname);
+
+        XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
+        request(packet);
+    }
+
+
+    /**
      * 处理成员加入申请。
      * @param id 申请事务Id。
      * @param username 申请人用户名。
@@ -170,20 +193,20 @@ public final class Group {
 
     /**
      * 将用户踢出圈子。
-     * @param user 被踢出的用户名。
+     * @param username 被踢出的用户名。
      * @param reason 踢出的原因。
      * @throws SmackException.NotConnectedException
      * @throws XMPPException.XMPPErrorException
      * @throws SmackException.NoResponseException
      */
-    public void kick(String user, String reason) throws
+    public void kick(String username, String reason) throws
             SmackException.NotConnectedException,
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
-        if(user == null) { throw new NullPointerException("user is null."); }
-        if(user.length() == 0) { throw new IllegalArgumentException("user is invalid."); }
+        if(username == null) { throw new NullPointerException("username is null."); }
+        if(username.length() == 0) { throw new IllegalArgumentException("username is invalid."); }
 
-        KickOperate ope = new KickOperate(user);
+        KickOperate ope = new KickOperate(username);
         ope.setReason(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
