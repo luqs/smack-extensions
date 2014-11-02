@@ -31,7 +31,7 @@
                     <systemProperties>
                         <property>
                             <name>xmpp.host</name>
-                            <value>192.168.1.104</value>
+                            <value>localhost</value>
                         </property>
                         <property>
                             <name>xmpp.port</name>

@@ -1,44 +1,44 @@
 package com.skysea.group.packet.operate;
 
+import com.skysea.group.MemberInfo;
+import com.skysea.group.packet.HasMember;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 
 /**
  * 邀请操作。
+ *  <invite>
+ *      <member username='user100' nickname='独孤求败' />
+ *  </invite>
  * Created by zhangzhi on 2014/10/9.
  */
-public class InviteOperate extends Operate {
-    private final String userName;
-    private final String nickname;
+public final class InviteOperate extends Operate implements HasMember {
+    private MemberInfo memberInfo;
 
     public InviteOperate(String userName, String nickname) {
         super("invite");
-        this.userName = userName;
-        this.nickname = nickname;
+        memberInfo = new MemberInfo(userName, nickname);
     }
 
     @Override
     protected void childrenElements(XmlStringBuilder builder) {
         builder.halfOpenElement("member")
-                .attribute("username", userName)
-                .optAttribute("nickname", nickname)
+                .attribute("username", memberInfo.getUserName())
+                .optAttribute("nickname", memberInfo.getNickname())
                 .closeEmptyElement();
     }
 
-
     /**
-     * 被邀请的用户。
+     * 获得被邀请的成员信息。
      * @return
      */
-    public String getUserName() {
-        return userName;
+    @Override
+    public MemberInfo getMemberInfo() {
+        return memberInfo;
     }
 
-    /**
-     * 被邀请用户的昵称。
-     * @return
-     */
-    public String getNickname() {
-        return nickname;
+    @Override
+    public void setMemberInfo(MemberInfo member) {
+        this.memberInfo = member;
     }
 
 }

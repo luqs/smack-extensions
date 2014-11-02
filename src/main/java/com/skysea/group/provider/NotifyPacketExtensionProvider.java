@@ -1,6 +1,5 @@
 package com.skysea.group.provider;
 
-import com.skysea.group.MemberInfo;
 import com.skysea.group.packet.MemberPacketExtension;
 import com.skysea.group.packet.NotifyPacketExtension;
 import com.skysea.group.packet.notify.NotifyParser;
@@ -13,6 +12,7 @@ import org.xmlpull.v1.XmlPullParser;
  * Created by apple on 14-9-24.
  */
 public class NotifyPacketExtensionProvider implements PacketExtensionProvider {
+    private final static String BASE_NAMESPACE = "http://skysea.com/protocol/group";
     @Override
     public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
         String name = parser.getName();
@@ -23,13 +23,11 @@ public class NotifyPacketExtensionProvider implements PacketExtensionProvider {
             int type = parser.next();
             if (type == XmlPullParser.START_TAG && extension == null) {
 
-                if (NotifyParser.isAccept(parser.getName(), namespace)) {
+                if (namespace.startsWith(BASE_NAMESPACE) && NotifyParser.isAccept(parser.getName())) {
 
                     /* 解析通知扩展包 */
                     NotifyPacketExtension packet = new NotifyPacketExtension(name, namespace);
-                    NotifyParser notifyparser = new NotifyParser(parser, packet.getNamespace());
-                    packet.setNotify(notifyparser.parse());
-
+                    packet.setNotify(NotifyParser.parse(parser, packet.getNamespace()));
                     extension = packet;
                 } else {
                      /* 解析聊天消息中的程序信息扩展包 */

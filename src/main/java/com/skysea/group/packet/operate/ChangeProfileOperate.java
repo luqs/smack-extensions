@@ -4,6 +4,9 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
 
 /**
  * 修改圈子名片的操作。
+ *  <profile>
+ *      <nickname>金轮法王</nickname>
+ *  </profile>
  * Created by zhangzhi on 2014/9/23.
  */
 public final class ChangeProfileOperate extends Operate {

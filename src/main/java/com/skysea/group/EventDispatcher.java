@@ -92,22 +92,22 @@ final class EventDispatcher implements PacketListener {
     void dispatch(String jid, Notify notify) {
         switch (notify.getType()) {
             case MEMBER_JOINED:
-                dispatchJoined(jid, (MemberEventNotify)notify);
+                dispatchJoined(jid, (MemberJoinedNotify)notify);
                 break;
             case MEMBER_EXITED:
-                dispatchExited(jid, (MemberEventNotify)notify);
+                dispatchExited(jid, (MemberExitedNotify)notify);
                 break;
             case MEMBER_KICKED:
-                dispatchKicked(jid, (KickedNotify)notify);
+                dispatchKicked(jid, (MemberKickedNotify)notify);
                 break;
             case MEMBER_PROFILE_CHANGED:
-                dispatchProfile(jid, (ProfileChangedNotify)notify);
+                dispatchProfile(jid, (MemberProfileChangedNotify)notify);
                 break;
             case MEMBER_APPLY_TO_JOIN:
-                dispatchApply(jid, (ApplyNotify)notify);
+                dispatchApply(jid, (MemberApplyToJoinNotify)notify);
                 break;
             case MEMBER_APPLY_TO_JOIN_RESULT:
-                dispatchApplyResult(jid, (ApplyResultNotify)notify);
+                dispatchApplyResult(jid, (MemberApplyResultNotify)notify);
                 break;
             case GROUP_DESTROY:
                 dispatchDestroy(jid, (GroupDestroyNotify) notify);
@@ -119,34 +119,33 @@ final class EventDispatcher implements PacketListener {
         for (GroupEventListener listener:listeners) {
             listener.created(jid, createFrom);
         }
-
     }
 
-    private void dispatchProfile(String jid, ProfileChangedNotify notify) {
+    private void dispatchProfile(String jid, MemberProfileChangedNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.memberNicknameChanged(jid, notify.getMemberInfo(), notify.getNewNickname());
         }
     }
 
-    private void dispatchKicked(String jid, KickedNotify notify) {
+    private void dispatchKicked(String jid, MemberKickedNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.memberKicked(jid, notify.getMemberInfo(), notify.getFrom(), notify.getReason());
         }
     }
 
-    private void dispatchExited(String jid, MemberEventNotify notify) {
+    private void dispatchExited(String jid, MemberExitedNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.memberExited(jid, notify.getMemberInfo(), notify.getReason());
         }
     }
 
-    private void dispatchJoined(String jid, MemberEventNotify notify) {
+    private void dispatchJoined(String jid, MemberJoinedNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.memberJoined(jid, notify.getMemberInfo());
         }
     }
 
-    private void dispatchApply(String jid, ApplyNotify notify) {
+    private void dispatchApply(String jid, MemberApplyToJoinNotify notify) {
         for (GroupEventListener listener : listeners) {
             listener.applyArrived(jid, notify.getId(), notify.getMemberInfo(), notify.getReason());
         }
@@ -158,7 +157,7 @@ final class EventDispatcher implements PacketListener {
         }
     }
 
-    private void dispatchApplyResult(String jid, ApplyResultNotify notify) {
+    private void dispatchApplyResult(String jid, MemberApplyResultNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.applyProcessed(jid, notify.getResult(), notify.getFrom(), notify.getReason());
         }

@@ -3,7 +3,7 @@ package com.skysea.group.provider;
 import com.skysea.XmlPullPaserTestBase;
 import com.skysea.group.packet.MemberPacketExtension;
 import com.skysea.group.packet.NotifyPacketExtension;
-import com.skysea.group.packet.notify.MemberEventNotify;
+import com.skysea.group.packet.notify.MemberExitedNotify;
 import org.xmlpull.v1.XmlPullParser;
 
 public class NotifyPacketExtensionProviderTest extends XmlPullPaserTestBase {
@@ -32,7 +32,7 @@ public class NotifyPacketExtensionProviderTest extends XmlPullPaserTestBase {
         assertEquals("x", packet.getElementName());
         assertEquals("http://skysea.com/protocol/group#member", packet.getNamespace());
 
-        MemberEventNotify notify = (MemberEventNotify)packet.getNotify();
+        MemberExitedNotify notify = (MemberExitedNotify)packet.getNotify();
         assertEquals("user", notify.getMemberInfo().getUserName());
         assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
         assertNotNull("大家太吵了，不好意思，我退了先！", notify.getReason());

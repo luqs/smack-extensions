@@ -1,13 +1,13 @@
 package com.skysea.group;
 
-import com.skysea.group.packet.*;
+import com.skysea.group.packet.QueryPacket;
+import com.skysea.group.packet.XPacket;
 import com.skysea.group.packet.operate.*;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
@@ -83,8 +83,7 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        GenericOperate ope = new GenericOperate(GenericOperate.DESTROY);
-        ope.setReason(reason);
+        HasReasonOperate ope = HasReasonOperate.newInstanceForDestroyGroup(reason);
         XPacket packet = new XPacket(GroupService.GROUP_OWNER_NAMESPACE, ope);
         request(packet);
     }
@@ -185,8 +184,7 @@ public final class Group {
             XMPPException.XMPPErrorException,
             SmackException.NoResponseException {
 
-        GenericOperate ope = new GenericOperate(GenericOperate.EXIT);
-        ope.setReason(reason);
+        HasReasonOperate ope = HasReasonOperate.newInstanceForExitGroup(reason);
         XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
         request(packet);
     }

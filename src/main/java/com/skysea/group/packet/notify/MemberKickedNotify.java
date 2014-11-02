@@ -3,15 +3,15 @@ package com.skysea.group.packet.notify;
 import com.skysea.group.packet.HasReason;
 
 /**
- * 圈子销毁的通知。
+ * 成员被踢出的通知。
  * Created by zhangzhi on 2014/9/23.
  */
-public final class GroupDestroyNotify extends Notify implements HasOperator , HasReason {
+public final class MemberKickedNotify extends HasMemberNotify implements HasOperator, HasReason {
     private String from;
     private String reason;
 
-    public GroupDestroyNotify() {
-        super(Type.GROUP_DESTROY);
+    public MemberKickedNotify() {
+        super(Type.MEMBER_KICKED);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Apply_Arrived() throws Exception {
         // Arrange
-        final ApplyNotify notify = new ApplyNotify();
+        final MemberApplyToJoinNotify notify = new MemberApplyToJoinNotify();
         notify.setMemberInfo(MEMBER_INFO);
         notify.setId("123");
         notify.setReason("我想加入");
@@ -60,7 +60,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Apply_Result_Arrived() throws Exception {
         // Arrange
-        final ApplyResultNotify notify = new ApplyResultNotify();
+        final MemberApplyResultNotify notify = new MemberApplyResultNotify();
         notify.setFrom(OWNER_JID);
         notify.setResult(true);
         notify.setReason("欢迎加入");
@@ -122,7 +122,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Profile_Changed() throws Exception {
         // Arrange
-        final ProfileChangedNotify notify = new ProfileChangedNotify();
+        final MemberProfileChangedNotify notify = new MemberProfileChangedNotify();
         notify.setMemberInfo(MEMBER_INFO);
         notify.setNewNickname("金轮法王");
 
@@ -143,7 +143,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Exited() throws Exception {
         // Arrange
-        final MemberEventNotify notify = new MemberEventNotify(Notify.Type.MEMBER_EXITED);
+        final MemberExitedNotify notify = new MemberExitedNotify();
         notify.setMemberInfo(MEMBER_INFO);
         notify.setReason("再见吧");
 
@@ -164,7 +164,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Joined() throws Exception {
         // Arrange
-        final MemberEventNotify notify = new MemberEventNotify(Notify.Type.MEMBER_JOINED);
+        final MemberJoinedNotify notify = new MemberJoinedNotify();
         notify.setMemberInfo(MEMBER_INFO);
 
         // Act
@@ -183,7 +183,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Member_Kicked() throws Exception {
         // Arrange
-        final KickedNotify notify = new KickedNotify();
+        final MemberKickedNotify notify = new MemberKickedNotify();
         notify.setFrom(OWNER_JID);
         notify.setMemberInfo(MEMBER_INFO);
 

@@ -4,9 +4,9 @@ package com.skysea.group.packet.notify;
  * 用户修改圈子名片的通知。
  * Created by zhangzhi on 2014/9/23.
  */
-public class ProfileChangedNotify extends MemberEventNotify {
+public final class MemberProfileChangedNotify extends HasMemberNotify {
     private String newNickname;
-    public ProfileChangedNotify() {
+    public MemberProfileChangedNotify() {
         super(Type.MEMBER_PROFILE_CHANGED);
     }
 

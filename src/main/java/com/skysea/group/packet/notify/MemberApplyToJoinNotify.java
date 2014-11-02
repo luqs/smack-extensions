@@ -3,25 +3,23 @@ package com.skysea.group.packet.notify;
 import com.skysea.group.packet.HasReason;
 
 /**
- * 圈子销毁的通知。
+ * 申请加入圈子的通知。
  * Created by zhangzhi on 2014/9/23.
  */
-public final class GroupDestroyNotify extends Notify implements HasOperator , HasReason {
-    private String from;
+public final class MemberApplyToJoinNotify extends HasMemberNotify implements HasReason {
+    private String id;
     private String reason;
 
-    public GroupDestroyNotify() {
-        super(Type.GROUP_DESTROY);
+    public MemberApplyToJoinNotify() {
+        super(Type.MEMBER_APPLY_TO_JOIN);
     }
 
-    @Override
-    public String getFrom() {
-        return from;
+    public String getId() {
+        return id;
     }
 
-    @Override
-    public void setFrom(String from) {
-        this.from = from;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
