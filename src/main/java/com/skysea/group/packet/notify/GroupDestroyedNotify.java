@@ -6,11 +6,11 @@ import com.skysea.group.packet.HasReason;
  * 圈子销毁的通知。
  * Created by zhangzhi on 2014/9/23.
  */
-public final class GroupDestroyNotify extends Notify implements HasOperator , HasReason {
+public final class GroupDestroyedNotify extends Notify implements HasOperator , HasReason {
     private String from;
     private String reason;
 
-    public GroupDestroyNotify() {
+    public GroupDestroyedNotify() {
         super(Type.GROUP_DESTROY);
     }
 

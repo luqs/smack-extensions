@@ -21,7 +21,9 @@ public final class NotifyParser {
     private String namespace;
     private Notify result;
 
-    private NotifyParser(){}
+    private NotifyParser() {
+    }
+
     private void reset(XmlPullParser parser, String namespace) {
         this.parser = parser;
         this.namespace = namespace;
@@ -39,11 +41,14 @@ public final class NotifyParser {
                 isNotify(Notify.Type.MEMBER_APPLY_TO_JOIN, name) ||
                 isNotify(Notify.Type.MEMBER_APPLY_TO_JOIN_RESULT, name) ||
                 isNotify(Notify.Type.MEMBER_PROFILE_CHANGED, name) ||
-                isNotify(Notify.Type.GROUP_DESTROY, name);
+                isNotify(Notify.Type.GROUP_DESTROY, name) ||
+                isNotify(Notify.Type.GROUP_CHANGE, name) ||
+                isNotify(Notify.Type.MEMBER_INVITE, name);
     }
 
     /**
      * 尝试从XmlPullParser中分析Notify对象。
+     *
      * @param parser
      * @param namespace
      * @return
@@ -61,9 +66,9 @@ public final class NotifyParser {
         return result;
     }
 
-    private static NotifyParser acquireNotifyParser(){
+    private static NotifyParser acquireNotifyParser() {
         NotifyParser notifyParser = parserCache.get();
-        if(notifyParser != null && parserCache.compareAndSet(notifyParser, null)) {
+        if (notifyParser != null && parserCache.compareAndSet(notifyParser, null)) {
             return notifyParser;
         }
         return new NotifyParser();
@@ -83,28 +88,25 @@ public final class NotifyParser {
      */
     public void parse() throws Exception {
         if (is(Notify.Type.MEMBER_JOINED)) {
-
             parse(new MemberJoinedNotify());
         } else if (is(Notify.Type.MEMBER_EXITED)) {
-
             parse(new MemberExitedNotify());
         } else if (is(Notify.Type.MEMBER_KICKED)) {
-
             parse((Notify) parseOperator(new MemberKickedNotify()));
         } else if (is(Notify.Type.MEMBER_PROFILE_CHANGED)) {
-
             parse(new MemberProfileChangedNotify());
+        } else if (is(Notify.Type.MEMBER_INVITE)) {
+            parse((Notify) parseOperator(new MemberInviteNotify()));
+        } else if (is(Notify.Type.GROUP_CHANGE)) {
+            parse((Notify) parseOperator(new GroupChangedNotify()));
         } else if (isMemberApplyToJoin()) {
-
             MemberApplyToJoinNotify applyNotify = new MemberApplyToJoinNotify();
             applyNotify.setId(parser.getAttributeValue(null, "id"));
             parse(applyNotify);
         } else if (isMemberApplyToJoinResult()) {
-
             parse(new MemberApplyResultNotify());
         } else if (is(Notify.Type.GROUP_DESTROY)) {
-
-            parse((Notify) parseOperator(new GroupDestroyNotify()));
+            parse((Notify) parseOperator(new GroupDestroyedNotify()));
         }
     }
 
@@ -117,7 +119,6 @@ public final class NotifyParser {
         return GroupService.GROUP_OWNER_NAMESPACE.equals(namespace) &&
                 is(Notify.Type.MEMBER_APPLY_TO_JOIN);
     }
-
 
     private void parse(Notify notify) throws Exception {
         boolean done = false;
@@ -143,6 +144,11 @@ public final class NotifyParser {
                 /* 分析申请结果 */
                 if (notify instanceof MemberApplyResultNotify) {
                     tryParseApplyResult((MemberApplyResultNotify) notify);
+                }
+
+                /* 分析成员列表 */
+                if (notify instanceof MemberInviteNotify) {
+                    tryParseMember((MemberInviteNotify) notify);
                 }
 
             } else if (type == XmlPullParser.END_TAG) {
@@ -182,12 +188,27 @@ public final class NotifyParser {
         }
     }
 
+    private void tryParseMember(MemberInviteNotify notify) {
+        MemberInfo member = parseMember();
+        if (member != null) {
+            notify.addMember(member);
+        }
+    }
+
     private void tryParseMember(HasMember notify) {
+        MemberInfo member = parseMember();
+        if (member != null) {
+            notify.setMemberInfo(member);
+        }
+    }
+
+    private MemberInfo parseMember() {
         if ("member".equals(parser.getName())) {
-            MemberInfo member = new MemberInfo(
+            return new MemberInfo(
                     parser.getAttributeValue(null, "username"),
                     parser.getAttributeValue(null, "nickname"));
-            notify.setMemberInfo(member);
+        } else {
+            return null;
         }
     }
 

@@ -110,7 +110,7 @@ final class EventDispatcher implements PacketListener {
                 dispatchApplyResult(jid, (MemberApplyResultNotify)notify);
                 break;
             case GROUP_DESTROY:
-                dispatchDestroy(jid, (GroupDestroyNotify) notify);
+                dispatchDestroy(jid, (GroupDestroyedNotify) notify);
                 break;
         }
     }
@@ -151,7 +151,7 @@ final class EventDispatcher implements PacketListener {
         }
     }
 
-    private void dispatchDestroy(String jid, GroupDestroyNotify notify) {
+    private void dispatchDestroy(String jid, GroupDestroyedNotify notify) {
         for (GroupEventListener listener:listeners) {
             listener.destroyed(jid, notify.getFrom(), notify.getReason());
         }

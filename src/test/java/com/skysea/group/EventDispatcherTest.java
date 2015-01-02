@@ -101,7 +101,7 @@ public class EventDispatcherTest extends TestCase {
 
     public void testDispatch_When_Group_Destroyed() throws Exception {
         // Arrange
-        final GroupDestroyNotify notify = new GroupDestroyNotify();
+        final GroupDestroyedNotify notify = new GroupDestroyedNotify();
         notify.setFrom(OWNER_JID);
         notify.setReason("没意思了");
 

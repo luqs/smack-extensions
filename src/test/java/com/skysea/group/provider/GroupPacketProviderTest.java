@@ -2,8 +2,6 @@ package com.skysea.group.provider;
 
 import com.skysea.XmlPullPaserTestBase;
 import com.skysea.group.packet.QueryPacket;
-import com.skysea.group.packet.XPacket;
-import com.skysea.group.packet.notify.MemberEventNotify;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.xmlpull.v1.XmlPullParser;
 

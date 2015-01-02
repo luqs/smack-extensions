@@ -20,9 +20,11 @@ public abstract class Notify {
         MEMBER_JOINED("join"),
         MEMBER_EXITED("exit"),
         MEMBER_KICKED("kick"),
+        MEMBER_INVITE("invite"),
         MEMBER_PROFILE_CHANGED("profile"),
         MEMBER_APPLY_TO_JOIN("apply"),
         MEMBER_APPLY_TO_JOIN_RESULT("apply"),
+        GROUP_CHANGE("change"),
         GROUP_DESTROY("destroy");
 
         private final String name;

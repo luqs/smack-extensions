@@ -1,6 +1,7 @@
 package com.skysea.group.packet.notify;
 
 import com.skysea.XmlPullPaserTestBase;
+import com.skysea.group.MemberInfo;
 import org.xmlpull.v1.XmlPullParser;
 
 /**
@@ -14,8 +15,9 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
         assertTrue(NotifyParser.isAccept("kick"));
         assertTrue(NotifyParser.isAccept("profile"));
         assertTrue(NotifyParser.isAccept("apply"));
-        assertTrue(NotifyParser.isAccept("apply"));
         assertTrue(NotifyParser.isAccept("destroy"));
+        assertTrue(NotifyParser.isAccept("invite"));
+        assertTrue(NotifyParser.isAccept("change"));
         assertFalse(NotifyParser.isAccept("history"));
     }
     public void testParse_When_Member_Joined() throws Exception {
@@ -29,6 +31,39 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
         assertEquals(Notify.Type.MEMBER_JOINED, notify.getType());
         assertEquals("user", notify.getMemberInfo().getUserName());
         assertEquals("碧眼狐狸", notify.getMemberInfo().getNickname());
+    }
+
+    public void testParse_When_Group_Changed() throws Exception {
+        // Arrange && Act
+        GroupChangedNotify notify = (GroupChangedNotify)parser(
+                "http://skysea.com/protocol/group",
+                "<change from='user@skysea.com' />");
+
+
+        // Assert
+        assertEquals(Notify.Type.GROUP_CHANGE, notify.getType());
+        assertEquals("user@skysea.com", notify.getFrom());
+    }
+
+
+
+    public void testParse_When_Members_Invited() throws Exception {
+        // Arrange && Act
+        MemberInviteNotify notify = (MemberInviteNotify)parser(
+                "http://skysea.com/protocol/group#member",
+                "<invite from='user@skysea.com'>\n" +
+                        "        <member username='user100' nickname='独孤求败' />\n" +
+                        "        <member username='user101' nickname='雁过留声' />\n" +
+                        "        <member username='user102' nickname='圆月弯刀' />\n" +
+                        "    </invite>");
+
+
+        // Assert
+        assertEquals(Notify.Type.MEMBER_INVITE, notify.getType());
+        assertTrue(notify.getMembers().contains(new MemberInfo("user100","独孤求败")));
+        assertTrue(notify.getMembers().contains(new MemberInfo("user101","雁过留声")));
+        assertTrue(notify.getMembers().contains(new MemberInfo("user102","圆月弯刀")));
+        assertEquals("user@skysea.com", notify.getFrom());
     }
 
     public void testParse_When_Member_Exited() throws Exception {
@@ -131,7 +166,7 @@ public class NotifyParserTest extends XmlPullPaserTestBase {
 
     public void testParse_When_Group_Destroy() throws Exception {
         // Arrange && Act
-        GroupDestroyNotify notify = (GroupDestroyNotify)parser(
+        GroupDestroyedNotify notify = (GroupDestroyedNotify)parser(
                 "http://skysea.com/protocol/group",
                 "<destroy from='owner@skysea.com'>\n" +
                         "  \t\t<reason>再见了各位！</reason>\n" +

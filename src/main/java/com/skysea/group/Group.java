@@ -143,7 +143,8 @@ public final class Group {
         if(username == null) { throw new NullPointerException("username is null."); }
         if(username.length() == 0) { throw new IllegalArgumentException("username is invalid."); }
 
-        InviteOperate ope = new InviteOperate(username, nickname);
+        InviteOperate ope = new InviteOperate();
+        ope.addMember(username, nickname);
 
         XPacket packet = new XPacket(GroupService.GROUP_MEMBER_NAMESPACE, ope);
         request(packet);

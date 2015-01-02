@@ -57,7 +57,6 @@ public class GroupTest extends GroupTestBase {
 
         // Assert
         assertFormEquals(expectForm.getDataFormToSend(), actualForm.getDataFormToSend());
-        assertNotNull(actualForm.getField("id").getValues().get(0));
         assertNotNull(actualForm.getField("createTime").getValues().get(0));
         assertEquals(group.getJid(), actualForm.getField("jid").getValues().get(0));
 
