@@ -1,4 +1,4 @@
-package com.skysea;  
+package com.skysea;
 
 import junit.framework.TestCase;
 import org.jivesoftware.smack.util.PacketParserUtils;
